@@ -36,9 +36,14 @@ void Board::addSlidingMoves(Square from,
         Square to{from.row + dRow, from.col + dCol};
         while (to.onBoard()) {
             Piece target = at(to);
-            if (target.empty() || target.colour != moving.colour) {
+            if (target.empty()) {
                 out.push_back(to);
-            } else {break;}
+            } else {
+                if (target.colour != moving.colour) {
+                    out.push_back(to);
+                }
+                break;
+            }
             to.row += dRow;
             to.col += dCol;
         }
