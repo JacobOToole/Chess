@@ -23,6 +23,11 @@ public:
     Square lastMoveFrom() const { return lastFrom_; }
     Square lastMoveTo() const { return lastTo_; }
 
+    Square kingSquare(Color colour) const;
+    bool isSquareAttacked(Square square, Color byColor) const;
+    bool isInCheck(Color color) const;
+
+
 private:
     std::array<Piece, 64> squares_{};
     Color sideToMove_ = Color::White;
@@ -36,10 +41,6 @@ private:
     void addRookMoves(Square from, std::vector<Square>& out) const;
     void addQueenMoves(Square from, std::vector<Square>& out) const;
     void addKingMoves(Square from, std::vector<Square>& out) const;
-
-    bool isSquareAttacked(Square square, Color byColour) const;
-
-    Square kingSquare(Color colour) const;
 
     static int idx(Square square) { return square.row * 8 + square.col; }
 

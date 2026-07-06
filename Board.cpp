@@ -176,6 +176,33 @@ bool Board::isLegalMove(Square from, Square to) const {
     //   3. Return true only if your king isn't attacked afterward.
 }
 
+bool Board::isSquareAttacked(Square target, Color byColour) const {
+    for (int row = 0; row < 8; row++) {
+        for (int col = 0; col < 8; col++) {
+            Square from(row, col);
+            Piece p = at(from);
+            if (p.empty() || p.colour != byColour) continue;
+
+            std::vector<Square> attacks;
+            switch (p.type) {
+                case PieceType::Pawn:   addPawnMoves(from, attacks); break;
+                    // Change to pawn attacks since pawns can only move diagonally if a piece is there to capture
+                case PieceType::Knight: addKnightMoves(from, attacks); break;
+                case PieceType::Bishop: addBishopMoves(from, attacks); break;
+                case PieceType::Rook:   addRookMoves(from, attacks);   break;
+                case PieceType::Queen:  addQueenMoves(from, attacks);  break;
+                case PieceType::King:   addKingMoves(from, attacks);   break;
+                default: break;
+            }
+
+            for (Square &s : attacks) {
+                if (s == target) return true;
+            }
+        }
+    }
+    return false;
+}
+
 void Board::makeMove(Square from, Square to) {
     squares_[idx(to)] = squares_[idx(from)];
     squares_[idx(from)] = Piece{};
