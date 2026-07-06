@@ -1,0 +1,20 @@
+# CMake build outputs
+cmake-build-*/
+build/
+out/
+
+# CLion / JetBrains config (keep this local)
+.idea/
+
+# Compiled binaries and objects
+*.o
+*.obj
+*.exe
+*.dll
+*.lib
+*.a
+*.pdb
+
+# OS junk
+.DS_Store
+Thumbs.db

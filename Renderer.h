@@ -1,0 +1,37 @@
+//
+// Created by jacob on 6/22/2026.
+//
+#pragma once
+
+#include <SFML/Graphics.hpp>
+#include "Piece.h"
+
+class Board;
+
+class Renderer {
+public:
+    explicit Renderer(int squareSize);
+
+    // Load all 12 piece PNGs from disk. Call once at startup.
+    // Returns false if any file failed to load.
+    bool loadTextures();
+
+    // Draw checker pattern
+    void drawBoard(sf::RenderWindow& window) const;
+
+    // Draw piece at given coordinates
+    void drawPiece(sf::RenderWindow& window, Piece piece, int row, int column) const;
+
+    void drawAllPieces(sf::RenderWindow& window, const Board& board) const;
+
+private:
+    // Declare private variables and texture array
+
+    int squareSize_;
+    sf::Color lightColour_;
+    sf::Color darkColour_;
+
+    // textures_[color][type] — e.g. textures_[0][5] is the white king.
+    sf::Texture textures_[static_cast<int>(Color::Count)][static_cast<int>(PieceType::Count)];
+
+};
