@@ -165,7 +165,7 @@ bool Board::isLegalMove(Square from, Square to) const {
     }
     return false;
 
-    // Once you add check detection, this becomes:
+    // Once check detection is added, this becomes:
     //   1. Look up `to` in legalDestinations (geometry).
     //   2. Simulate the move on a copy.
     //   3. Return true only if your king isn't attacked afterward.
