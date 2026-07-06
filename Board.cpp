@@ -166,16 +166,20 @@ bool Board::isLegalMove(Square from, Square to) const {
     Piece p = at(from);
     if (p.empty()) return false;
     if (p.colour != sideToMove_) return false;
-    std::vector<Square> dests = legalDestinations(from);
-    for (const Square &s: dests) {
-        if (s == to) return true;
-    }
-    return false;
 
-    // Once check detection is added, this becomes:
-    //   1. Look up `to` in legalDestinations.
-    //   2. Simulate the move on a copy.
-    //   3. Return true only if your king isn't attacked afterward.
+    std::vector<Square> dests = legalDestinations(from);
+    bool found = false;
+    for (const Square &s: dests) {
+        if (s == to) {found = true; break;}
+    }
+    if (!found) return false;
+
+    Board copy{*this};
+    copy.squares_[idx(to)] = copy.squares_[idx(from)];
+    copy.squares_[idx(from)] = Piece{};
+
+    Colour enemy = (p.colour == Colour::White) ? Colour::Black : Colour::White;
+    return !copy.isSquareAttacked(copy.kingSquare(p.colour), enemy);
 }
 
 bool Board::isSquareAttacked(Square target, Colour byColour) const {
