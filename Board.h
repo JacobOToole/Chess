@@ -18,6 +18,8 @@ public:
 
     bool isLegalMove(Square from, Square to) const;
     std::vector<Square> legalDestinations(Square from) const;
+    std::vector<Square> legalMoves(Square from) const;
+
     void makeMove(Square from, Square to);
 
     Square lastMoveFrom() const { return lastFrom_; }

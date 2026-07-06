@@ -160,6 +160,17 @@ std::vector<Square> Board::legalDestinations(Square from) const {
     return result;
 }
 
+std::vector<Square> Board::legalMoves(Square from) const {
+    std::vector<Square> result;
+
+    for (const Square& to : legalDestinations(from)) {
+        if (isLegalMove(from, to)) {
+            result.push_back(to);
+        }
+    }
+    return result;
+}
+
 bool Board::isLegalMove(Square from, Square to) const {
     if (!from.onBoard() || !to.onBoard()) return false;
 

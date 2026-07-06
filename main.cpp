@@ -53,7 +53,7 @@ int main() {
         std::vector<Square> destinations;
         if (selected.onBoard()) {
             renderer.drawSelection(window, selected);
-            destinations = board.legalDestinations(selected);
+            destinations = board.legalMoves(selected);
         }
 
         renderer.drawAllPieces(window, board);
