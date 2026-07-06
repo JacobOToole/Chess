@@ -11,7 +11,7 @@ enum class PieceType {
     Count   // sentinel — equals the number of types above
 };
 
-enum class Color {
+enum class Colour {
     White = 0,
     Black,
     Count
@@ -19,7 +19,7 @@ enum class Color {
 
 struct Piece {
     PieceType type = PieceType::None;
-    Color colour = Color::White;
+    Colour colour = Colour::White;
 
     bool empty() const { return type == PieceType::None; }
 };

@@ -42,6 +42,6 @@ private:
     sf::Color darkColour_;
 
     // textures_[color][type] — e.g. textures_[0][5] is the white king.
-    sf::Texture textures_[static_cast<int>(Color::Count)][static_cast<int>(PieceType::Count)];
+    sf::Texture textures_[static_cast<int>(Colour::Count)][static_cast<int>(PieceType::Count)];
 
 };

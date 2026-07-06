@@ -4,6 +4,8 @@
 
 #include "Board.h"
 
+#include "SFML/Graphics/Color.hpp"
+
 Board::Board() {
     const PieceType backRank[8] = {
         PieceType::Rook,
@@ -17,10 +19,10 @@ Board::Board() {
     };
 
     for (int col = 0; col < 8; ++col) {
-        squares_[idx({0, col})] = {backRank[col], Color::Black};
-        squares_[idx({1, col})] = {PieceType::Pawn, Color::Black};
-        squares_[idx({6, col})] = {PieceType::Pawn, Color::White};
-        squares_[idx({7, col})] = {backRank[col], Color::White};
+        squares_[idx({0, col})] = {backRank[col], Colour::Black};
+        squares_[idx({1, col})] = {PieceType::Pawn, Colour::Black};
+        squares_[idx({6, col})] = {PieceType::Pawn, Colour::White};
+        squares_[idx({7, col})] = {backRank[col], Colour::White};
     }
 }
 
@@ -96,8 +98,8 @@ void Board::addKingMoves(Square from, std::vector<Square> &out) const {
 
 void Board::addPawnMoves(Square from, std::vector<Square> &out) const {
     Piece moving = at(from);
-    int dir = (moving.colour == Color::White) ? -1 : +1;
-    int startRow = (moving.colour == Color::White) ? 6 : 1;
+    int dir = (moving.colour == Colour::White) ? -1 : +1;
+    int startRow = (moving.colour == Colour::White) ? 6 : 1;
 
     Square oneAhead{from.row + dir, from.col};
     if (oneAhead.onBoard() && at(oneAhead).empty()) {
@@ -176,7 +178,7 @@ bool Board::isLegalMove(Square from, Square to) const {
     //   3. Return true only if your king isn't attacked afterward.
 }
 
-bool Board::isSquareAttacked(Square target, Color byColour) const {
+bool Board::isSquareAttacked(Square target, Colour byColour) const {
     for (int row = 0; row < 8; row++) {
         for (int col = 0; col < 8; col++) {
             Square from(row, col);
@@ -203,11 +205,30 @@ bool Board::isSquareAttacked(Square target, Color byColour) const {
     return false;
 }
 
+Square Board::kingSquare(Colour colour) const {
+    for (int row = 0; row < 8; row++) {
+        for (int col = 0; col < 8; col++) {
+            Square square(row, col);
+            Piece piece = at(square);
+            if (piece.type == PieceType::King && piece.colour == colour) {
+                return square;
+            }
+        }
+    }
+    return {-1, -1};
+}
+
+bool Board::isInCheck(Colour colour) const {
+    Square kSquare = kingSquare(colour);
+    Colour enemyColour = (colour == Colour::White) ? Colour::Black : Colour::White;
+    return isSquareAttacked(kSquare, enemyColour);
+}
+
 void Board::makeMove(Square from, Square to) {
     squares_[idx(to)] = squares_[idx(from)];
     squares_[idx(from)] = Piece{};
     lastFrom_ = from;
     lastTo_ = to;
-    sideToMove_ = (sideToMove_ == Color::White) ? Color::Black : Color::White;
+    sideToMove_ = (sideToMove_ == Colour::White) ? Colour::Black : Colour::White;
 
 }
