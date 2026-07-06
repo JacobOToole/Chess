@@ -88,5 +88,30 @@ void Renderer::drawSelection(sf::RenderWindow &window, Square selected) const {
 }
 
 void Renderer::drawMoveIndicators(sf::RenderWindow &window, const std::vector<Square> &destinations, const Board &board) const {
-    
+    const float squareF = static_cast<float>(squareSize_);
+
+    for (const Square& square : destinations) {
+        Piece target = board.at(square);
+        if (target.empty()) {
+            // empty square, small circle
+            float radius = squareF * 0.15f;
+            sf::CircleShape dot(radius);
+            dot.setOrigin(radius, radius);
+            dot.setPosition(square.col * squareF + squareF / 2.0f,
+                            square.row * squareF + squareF / 2.0f);
+            dot.setFillColor(sf::Color(0, 0, 0, 90));
+            window.draw(dot);
+        } else {
+            // Capture: hollow ring around the piece.
+            float radius = squareF * 0.45f;
+            sf::CircleShape ring(radius);
+            ring.setOrigin(radius, radius);
+            ring.setPosition(square.col * squareF + squareF / 2.0f,
+                             square.row * squareF + squareF / 2.0f);
+            ring.setFillColor(sf::Color::Transparent);
+            ring.setOutlineThickness(4.0f);
+            ring.setOutlineColor(sf::Color(0, 0, 0, 120));
+            window.draw(ring);
+        }
+    }
 }
