@@ -45,7 +45,16 @@ int main() {
 
         window.clear(sf::Color::Black);
         renderer.drawBoard(window);
+
+        // Compute highlight indicators
+        std::vector<Square> destinations;
+        if (selected.onBoard()) {
+            renderer.drawSelection(window, selected);
+            destinations = board.legalDestinations(selected);
+        }
+
         renderer.drawAllPieces(window, board);
+        renderer.drawMoveIndicators(window, destinations, board);
         window.display();
     }
     return 0;

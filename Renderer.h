@@ -5,6 +5,8 @@
 
 #include <SFML/Graphics.hpp>
 #include "Piece.h"
+#include "Square.h"
+#include <vector>
 
 class Board;
 
@@ -23,6 +25,12 @@ public:
     void drawPiece(sf::RenderWindow& window, Piece piece, int row, int column) const;
 
     void drawAllPieces(sf::RenderWindow& window, const Board& board) const;
+
+    void drawSelection(sf::RenderWindow& window, Square selected) const;
+
+    void drawMoveIndicators(sf::RenderWindow& window,
+                            const std::vector<Square>& destinations,
+                            const Board& board) const;
 
 private:
     // Declare private variables and texture array

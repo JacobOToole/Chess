@@ -77,3 +77,16 @@ void Renderer::drawAllPieces(sf::RenderWindow &window, const Board &board) const
         }
     }
 }
+
+void Renderer::drawSelection(sf::RenderWindow &window, Square selected) const {
+    if (!selected.onBoard()) return;
+
+    sf::RectangleShape highlight(sf::Vector2f(squareSize_, squareSize_));
+    highlight.setPosition(selected.col * squareSize_, selected.row * squareSize_);
+    highlight.setFillColor(sf::Color(255, 150, 175, 152));
+    window.draw(highlight);
+}
+
+void Renderer::drawMoveIndicators(sf::RenderWindow &window, const std::vector<Square> &destinations, const Board &board) const {
+    
+}
