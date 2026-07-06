@@ -20,6 +20,9 @@ public:
     std::vector<Square> legalDestinations(Square from) const;
     void makeMove(Square from, Square to);
 
+    Square lastMoveFrom() const { return lastFrom_; }
+    Square lastMoveTo() const { return lastTo_; }
+
 private:
     std::array<Piece, 64> squares_{};
     Color sideToMove_ = Color::White;
@@ -39,4 +42,7 @@ private:
     Square kingSquare(Color colour) const;
 
     static int idx(Square square) { return square.row * 8 + square.col; }
+
+    Square lastFrom_{-1, -1};   // sentinel: no move yet
+    Square lastTo_{-1, -1};
 };

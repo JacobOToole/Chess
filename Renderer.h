@@ -32,6 +32,8 @@ public:
                             const std::vector<Square>& destinations,
                             const Board& board) const;
 
+    void drawLastMove(sf::RenderWindow& window, const Board& board) const;
+
 private:
     // Declare private variables and texture array
 

@@ -179,5 +179,8 @@ bool Board::isLegalMove(Square from, Square to) const {
 void Board::makeMove(Square from, Square to) {
     squares_[idx(to)] = squares_[idx(from)];
     squares_[idx(from)] = Piece{};
+    lastFrom_ = from;
+    lastTo_ = to;
     sideToMove_ = (sideToMove_ == Color::White) ? Color::Black : Color::White;
+
 }
