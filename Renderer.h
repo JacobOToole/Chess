@@ -34,6 +34,8 @@ public:
 
     void drawLastMove(sf::RenderWindow& window, const Board& board) const;
 
+    void drawCheckHighlights(sf::RenderWindow& window, const Board& board) const;
+
 private:
     // Declare private variables and texture array
 

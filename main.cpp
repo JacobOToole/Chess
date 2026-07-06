@@ -44,9 +44,10 @@ int main() {
         }
 
         window.clear(sf::Color::Black);
-        renderer.drawBoard(window);
 
+        renderer.drawBoard(window);
         renderer.drawLastMove(window, board);
+        renderer.drawCheckHighlights(window, board);
 
         // Compute highlight indicators
         std::vector<Square> destinations;

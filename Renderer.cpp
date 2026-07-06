@@ -131,3 +131,15 @@ void Renderer::drawLastMove(sf::RenderWindow &window, const Board &board) const 
     square.setPosition(to.col * squareSize_, to.row * squareSize_);
     window.draw(square);
 }
+
+void Renderer::drawCheckHighlights(sf::RenderWindow &window, const Board &board) const {
+    Colour side = board.sideToMove();
+    if (!board.isInCheck(side)) return;
+
+    Square kSquare = board.kingSquare(side);
+
+    sf::RectangleShape checkHighlight(sf::Vector2f(squareSize_, squareSize_));
+    checkHighlight.setPosition(kSquare.col * squareSize_, kSquare.row * squareSize_);
+    checkHighlight.setFillColor(sf::Color(255, 0, 0, 130));
+    window.draw(checkHighlight);
+}
