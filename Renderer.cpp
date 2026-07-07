@@ -120,7 +120,7 @@ void Renderer::drawLastMove(sf::RenderWindow &window, const Board &board) const 
     Square from = board.lastMoveFrom();
     Square to = board.lastMoveTo();
 
-    sf::Color tint{120, 180, 20, 50};
+    sf::Color tint{200, 230, 0, 50};
 
     sf::RectangleShape square(sf::Vector2f(squareSize_, squareSize_));
     square.setFillColor(tint);
