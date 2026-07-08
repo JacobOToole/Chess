@@ -58,6 +58,7 @@ int main() {
 
         renderer.drawAllPieces(window, board);
         renderer.drawMoveIndicators(window, destinations, board);
+        
         window.display();
     }
     return 0;
