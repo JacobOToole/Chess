@@ -14,18 +14,25 @@ public:
     // Return empty piece if square is empty
     Piece at(Square square) const;
     Piece at(int row, int col) const { return at(Square(row, col)); };
-    Color sideToMove() const { return sideToMove_; }
+    Colour sideToMove() const { return sideToMove_; }
 
     bool isLegalMove(Square from, Square to) const;
     std::vector<Square> legalDestinations(Square from) const;
+    std::vector<Square> legalMoves(Square from) const;
+
     void makeMove(Square from, Square to);
 
     Square lastMoveFrom() const { return lastFrom_; }
     Square lastMoveTo() const { return lastTo_; }
 
+    Square kingSquare(Colour colour) const;
+    bool isSquareAttacked(Square square, Colour byColor) const;
+    bool isInCheck(Colour color) const;
+
+
 private:
     std::array<Piece, 64> squares_{};
-    Color sideToMove_ = Color::White;
+    Colour sideToMove_ = Colour::White;
 
     void addSlidingMoves(Square from,
                      std::initializer_list<std::pair<int, int>> directions,
@@ -36,10 +43,6 @@ private:
     void addRookMoves(Square from, std::vector<Square>& out) const;
     void addQueenMoves(Square from, std::vector<Square>& out) const;
     void addKingMoves(Square from, std::vector<Square>& out) const;
-
-    bool isSquareAttacked(Square square, Color byColour) const;
-
-    Square kingSquare(Color colour) const;
 
     static int idx(Square square) { return square.row * 8 + square.col; }
 

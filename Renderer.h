@@ -34,6 +34,8 @@ public:
 
     void drawLastMove(sf::RenderWindow& window, const Board& board) const;
 
+    void drawCheckHighlights(sf::RenderWindow& window, const Board& board) const;
+
 private:
     // Declare private variables and texture array
 
@@ -42,6 +44,6 @@ private:
     sf::Color darkColour_;
 
     // textures_[color][type] — e.g. textures_[0][5] is the white king.
-    sf::Texture textures_[static_cast<int>(Color::Count)][static_cast<int>(PieceType::Count)];
+    sf::Texture textures_[static_cast<int>(Colour::Count)][static_cast<int>(PieceType::Count)];
 
 };

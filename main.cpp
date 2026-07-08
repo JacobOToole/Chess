@@ -44,19 +44,21 @@ int main() {
         }
 
         window.clear(sf::Color::Black);
-        renderer.drawBoard(window);
 
+        renderer.drawBoard(window);
         renderer.drawLastMove(window, board);
+        renderer.drawCheckHighlights(window, board);
 
         // Compute highlight indicators
         std::vector<Square> destinations;
         if (selected.onBoard()) {
             renderer.drawSelection(window, selected);
-            destinations = board.legalDestinations(selected);
+            destinations = board.legalMoves(selected);
         }
 
         renderer.drawAllPieces(window, board);
         renderer.drawMoveIndicators(window, destinations, board);
+        
         window.display();
     }
     return 0;
