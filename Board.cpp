@@ -3,6 +3,7 @@
 //
 
 #include "Board.h"
+#include <cstdlib>
 
 #include "SFML/Graphics/Color.hpp"
 
@@ -66,15 +67,15 @@ void Board::addCastlingMoves(Square from, std::vector<Square> &out) const {
     // Check if squares between king and rook are empty and not under attack
     if (kingside) {
         if (at({row, 5}).empty() && at({row, 6}).empty()
-          && isSquareAttacked({row, 5}, enemyColour)
-          && isSquareAttacked({row, 6}, enemyColour)) {
+          && !isSquareAttacked({row, 5}, enemyColour)
+          && !isSquareAttacked({row, 6}, enemyColour)) {
             out.push_back({row, 6});
         }
     }
     if (queenside) {
         if (at({row, 1}).empty() && at({row, 2}).empty() && at({row, 3}).empty()
-          && isSquareAttacked({row, 2}, enemyColour)
-          && isSquareAttacked({row, 3}, enemyColour)) {
+          && !isSquareAttacked({row, 2}, enemyColour)
+          && !isSquareAttacked({row, 3}, enemyColour)) {
             out.push_back({row, 2});
           }
     }
@@ -109,7 +110,6 @@ void Board::addKingMoves(Square from, std::vector<Square> &out) const {
         {0, -1}, {0, +1},
         {+1, -1}, {+1, 0}, {+1, +1}
     };
-    addCastlingMoves(from, out);
 
     Piece moving = at(from);
     for (auto &d: deltas) {
@@ -178,7 +178,9 @@ std::vector<Square> Board::legalDestinations(Square from) const {
             break;
         case PieceType::Queen: addQueenMoves(from, result);
             break;
-        case PieceType::King: addKingMoves(from, result);
+        case PieceType::King:
+            addKingMoves(from, result);
+            addCastlingMoves(from, result);
             break;
     }
     return result;
@@ -286,6 +288,19 @@ void Board::determineCastlingRights() {
 }
 
 void Board::makeMove(Square from, Square to) {
+    Piece moving = at(from);
+
+    // castling. if king moves two columns, relocate rook
+    if (moving.type == PieceType::King && std::abs(to.col - from.col) == 2) {
+        if (to.col == 6) { // kingside
+            squares_[idx({to.row, 5})] = squares_[idx({to.row, 7})];
+            squares_[idx({to.row, 7})] = Piece{};
+        } else if (to.col == 2) { // queenside
+            squares_[idx({to.row, 3})] = squares_[idx({to.row, 0})];
+            squares_[idx({to.row, 0})] = Piece{};
+        }
+    }
+
     squares_[idx(to)] = squares_[idx(from)];
     squares_[idx(from)] = Piece{};
     lastFrom_ = from;
@@ -293,4 +308,5 @@ void Board::makeMove(Square from, Square to) {
     sideToMove_ = (sideToMove_ == Colour::White) ? Colour::Black : Colour::White;
 
     determineCastlingRights();
+
 }
