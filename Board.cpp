@@ -148,6 +148,18 @@ void Board::addPawnMoves(Square from, std::vector<Square> &out) const {
         }
     }
 }
+void Board::addPawnAttacks(Square from, std::vector<Square> &out) const {
+    Piece moving = at(from);
+    int dir = (moving.colour == Colour::White) ? -1 : +1;
+
+    for (int dCol : {+1, -1}) {
+        Square diag{from.row + dir, from.col + dCol};
+        if (diag.onBoard()) {
+            out.push_back(diag);
+        }
+    }
+}
+
 void Board::addBishopMoves(Square from, std::vector<Square> &out) const {
     addSlidingMoves(from, { {-1, -1}, {-1, 1}, {1, -1}, {+1, 1} } , out);
 }
@@ -226,8 +238,7 @@ bool Board::isSquareAttacked(Square target, Colour byColour) const {
 
             std::vector<Square> attacks;
             switch (p.type) {
-                case PieceType::Pawn:   addPawnMoves(from, attacks); break;
-                    // Change to pawn attacks since pawns can only move diagonally if a piece is there to capture
+                case PieceType::Pawn:   addPawnAttacks(from, attacks); break;
                 case PieceType::Knight: addKnightMoves(from, attacks); break;
                 case PieceType::Bishop: addBishopMoves(from, attacks); break;
                 case PieceType::Rook:   addRookMoves(from, attacks);   break;

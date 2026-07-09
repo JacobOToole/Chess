@@ -53,6 +53,7 @@ private:
                      std::initializer_list<std::pair<int, int>> directions,
                      std::vector<Square>& out) const;
     void addPawnMoves(Square from, std::vector<Square>& out) const;
+    void addPawnAttacks(Square from, std::vector<Square>& out) const;
     void addKnightMoves(Square from, std::vector<Square>& out) const;
     void addBishopMoves(Square from, std::vector<Square>& out) const;
     void addRookMoves(Square from, std::vector<Square>& out) const;
