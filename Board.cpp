@@ -53,7 +53,31 @@ void Board::addSlidingMoves(Square from,
 }
 
 void Board::addCastlingMoves(Square from, std::vector<Square> &out) const {
+    Piece moving = at(from);
+    int row = (moving.colour == Colour::White) ? 7 : 0;
+    Colour enemyColour = (moving.colour == Colour::White) ? Colour::Black : Colour::White;
 
+    // Can't castle if in check
+    if (isSquareAttacked({row, 4}, enemyColour)) return;
+
+    bool kingside = (moving.colour == Colour::White) ? whiteKingside_ : blackKingside_;
+    bool queenside = (moving.colour == Colour::White) ? whiteQueenside_ : blackQueenside_;
+
+    // Check if squares between king and rook are empty and not under attack
+    if (kingside) {
+        if (at({row, 5}).empty() && at({row, 6}).empty()
+          && isSquareAttacked({row, 5}, enemyColour)
+          && isSquareAttacked({row, 6}, enemyColour)) {
+            out.push_back({row, 6});
+        }
+    }
+    if (queenside) {
+        if (at({row, 1}).empty() && at({row, 2}).empty() && at({row, 3}).empty()
+          && isSquareAttacked({row, 2}, enemyColour)
+          && isSquareAttacked({row, 3}, enemyColour)) {
+            out.push_back({row, 2});
+          }
+    }
 }
 
 void Board::addKnightMoves(Square from, std::vector<Square> &out) const {
@@ -85,6 +109,7 @@ void Board::addKingMoves(Square from, std::vector<Square> &out) const {
         {0, -1}, {0, +1},
         {+1, -1}, {+1, 0}, {+1, +1}
     };
+    addCastlingMoves(from, out);
 
     Piece moving = at(from);
     for (auto &d: deltas) {
