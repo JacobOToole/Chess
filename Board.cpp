@@ -314,6 +314,16 @@ void Board::makeMove(Square from, Square to) {
 
     squares_[idx(to)] = squares_[idx(from)];
     squares_[idx(from)] = Piece{};
+
+    // promotion
+    Piece& landed = squares_[idx(to)];
+    if (landed.type == PieceType::Pawn) {
+        if ((landed.colour == Colour::White && to.row == 0) ||
+            (landed.colour == Colour::Black && to.row == 7)) {
+                landed.type = PieceType::Queen;
+            }
+    }
+
     lastFrom_ = from;
     lastTo_ = to;
     sideToMove_ = (sideToMove_ == Colour::White) ? Colour::Black : Colour::White;
