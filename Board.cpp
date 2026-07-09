@@ -52,6 +52,10 @@ void Board::addSlidingMoves(Square from,
     }
 }
 
+void Board::addCastlingMoves(Square from, std::vector<Square> &out) const {
+
+}
+
 void Board::addKnightMoves(Square from, std::vector<Square> &out) const {
     // Returns list of possible moves for a selected knight piece
 
@@ -75,7 +79,6 @@ void Board::addKnightMoves(Square from, std::vector<Square> &out) const {
         }
     }
 }
-
 void Board::addKingMoves(Square from, std::vector<Square> &out) const {
     const int deltas[8][2] = {
         {-1, -1}, {-1, 0}, {-1, +1},
@@ -95,7 +98,6 @@ void Board::addKingMoves(Square from, std::vector<Square> &out) const {
         }
     }
 }
-
 void Board::addPawnMoves(Square from, std::vector<Square> &out) const {
     Piece moving = at(from);
     int dir = (moving.colour == Colour::White) ? -1 : +1;
@@ -121,15 +123,12 @@ void Board::addPawnMoves(Square from, std::vector<Square> &out) const {
         }
     }
 }
-
 void Board::addBishopMoves(Square from, std::vector<Square> &out) const {
     addSlidingMoves(from, { {-1, -1}, {-1, 1}, {1, -1}, {+1, 1} } , out);
 }
-
 void Board::addRookMoves(Square from, std::vector<Square> &out) const {
     addSlidingMoves(from, { {-1, 0}, {0, -1}, {0, 1}, {1, 0} } , out);
 }
-
 void Board::addQueenMoves(Square from, std::vector<Square> &out) const {
     addSlidingMoves(from, {
         {-1, -1}, {-1, 0}, {-1, +1},
@@ -159,7 +158,6 @@ std::vector<Square> Board::legalDestinations(Square from) const {
     }
     return result;
 }
-
 std::vector<Square> Board::legalMoves(Square from) const {
     std::vector<Square> result;
 
@@ -170,7 +168,6 @@ std::vector<Square> Board::legalMoves(Square from) const {
     }
     return result;
 }
-
 bool Board::isLegalMove(Square from, Square to) const {
     if (!from.onBoard() || !to.onBoard()) return false;
 
@@ -219,7 +216,6 @@ bool Board::isSquareAttacked(Square target, Colour byColour) const {
     }
     return false;
 }
-
 Square Board::kingSquare(Colour colour) const {
     for (int row = 0; row < 8; row++) {
         for (int col = 0; col < 8; col++) {
@@ -232,11 +228,36 @@ Square Board::kingSquare(Colour colour) const {
     }
     return {-1, -1};
 }
-
 bool Board::isInCheck(Colour colour) const {
     Square kSquare = kingSquare(colour);
     Colour enemyColour = (colour == Colour::White) ? Colour::Black : Colour::White;
     return isSquareAttacked(kSquare, enemyColour);
+}
+void Board::determineCastlingRights() {
+    // White king moved
+    if (at({7, 4}).type != PieceType::King || at({7, 4}).colour != Colour::White) {
+        whiteKingside_ = whiteQueenside_ = false;
+    }
+    // Black king moved
+    if (at({0, 4}).type != PieceType::King || at({0, 4}).colour != Colour::Black) {
+        blackKingside_ = blackQueenside_ = false;
+    }
+    // White A rook moved
+    if (at({7, 0}).type != PieceType::Rook || at({7, 0}).colour != Colour::White) {
+        whiteQueenside_ = false;
+    }
+    // White H rook moved
+    if (at({7, 7}).type != PieceType::Rook || at({7, 7}).colour != Colour::White) {
+        whiteKingside_ = false;
+    }
+    // Black A rook moved
+    if (at({0, 0}).type != PieceType::Rook || at({0, 0}).colour != Colour::Black) {
+        blackQueenside_ = false;
+    }
+    // Black H rook moved
+    if (at({0, 7}).type != PieceType::Rook || at({0, 7}).colour != Colour::Black) {
+        blackKingside_ = false;
+    }
 }
 
 void Board::makeMove(Square from, Square to) {
@@ -246,4 +267,5 @@ void Board::makeMove(Square from, Square to) {
     lastTo_ = to;
     sideToMove_ = (sideToMove_ == Colour::White) ? Colour::Black : Colour::White;
 
+    determineCastlingRights();
 }

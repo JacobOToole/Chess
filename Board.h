@@ -43,6 +43,7 @@ private:
     Square lastFrom_{-1, -1};   // sentinel: no move yet
     Square lastTo_{-1, -1};
 
+    // Castling rights
     bool whiteKingside_ = true;
     bool whiteQueenside_ = true;
     bool blackKingside_ = true;
@@ -57,6 +58,8 @@ private:
     void addRookMoves(Square from, std::vector<Square>& out) const;
     void addQueenMoves(Square from, std::vector<Square>& out) const;
     void addKingMoves(Square from, std::vector<Square>& out) const;
+    void addCastlingMoves(Square from, std::vector<Square>& out) const;
+    void determineCastlingRights();
 
     static int idx(Square square) { return square.row * 8 + square.col; }
 
