@@ -29,10 +29,25 @@ public:
     bool isSquareAttacked(Square square, Colour byColor) const;
     bool isInCheck(Colour color) const;
 
+    bool canCastleKingside(Colour color) const {
+        return (color == Colour::White) ? whiteKingside_ : blackKingside_;
+    }
+    bool canCastleQueenside(Colour color) const {
+        return (color == Colour::White) ? whiteQueenside_ : blackQueenside_;
+    }
+
 
 private:
     std::array<Piece, 64> squares_{};
     Colour sideToMove_ = Colour::White;
+    Square lastFrom_{-1, -1};   // sentinel: no move yet
+    Square lastTo_{-1, -1};
+
+    // Castling rights
+    bool whiteKingside_ = true;
+    bool whiteQueenside_ = true;
+    bool blackKingside_ = true;
+    bool blackQueenside_ = true;
 
     void addSlidingMoves(Square from,
                      std::initializer_list<std::pair<int, int>> directions,
@@ -43,9 +58,9 @@ private:
     void addRookMoves(Square from, std::vector<Square>& out) const;
     void addQueenMoves(Square from, std::vector<Square>& out) const;
     void addKingMoves(Square from, std::vector<Square>& out) const;
+    void addCastlingMoves(Square from, std::vector<Square>& out) const;
+    void determineCastlingRights();
 
     static int idx(Square square) { return square.row * 8 + square.col; }
 
-    Square lastFrom_{-1, -1};   // sentinel: no move yet
-    Square lastTo_{-1, -1};
 };
