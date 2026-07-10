@@ -324,3 +324,10 @@ void Board::makeMove(Square from, Square to, PieceType promoteTo) {
 
     determineCastlingRights();
 }
+
+bool Board::isPromotionMove(Square from, Square to) const {
+    Piece p = at(from);
+    if (p.type != PieceType::Pawn) return false;
+    return (p.colour == Colour::White && to.row == 0) ||
+           (p.colour == Colour::Black && to.row == 7);
+}

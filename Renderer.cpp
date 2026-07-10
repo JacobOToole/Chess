@@ -155,7 +155,7 @@ void Renderer::drawPromotionPicker(sf::RenderWindow &window, Square promotionSqu
         int row = promotionSquare.row + i * rowStep;
 
         sf::RectangleShape bg(sf::Vector2f(squareSize_, squareSize_));
-        bg.setPosition(promotionSquare.col * squareSize_, promotionSquare.row * squareSize_);
+        bg.setPosition(promotionSquare.col * squareSize_, row * squareSize_);
         bg.setFillColor(sf::Color(240, 240, 240, 245));
         bg.setOutlineThickness(1.0f);
         bg.setOutlineColor(sf::Color::Black);

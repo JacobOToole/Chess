@@ -13,8 +13,11 @@ int main() {
     }
 
     Board board;
-
     Square selected{-1, -1};
+    bool awaitingPromotion = false;
+    Square pendingFrom{-1, -1};
+    Square pendingTo  {-1, -1};
+    Colour pendingColour = Colour::White;
 
     while (window.isOpen()) {
         sf::Event event;
@@ -24,8 +27,25 @@ int main() {
                  event.mouseButton.button == sf::Mouse::Left) {
 
                 Square clicked{event.mouseButton.y / 80, event.mouseButton.x / 80};
-
                 if (!clicked.onBoard()) continue;
+
+                if (awaitingPromotion) {
+                    int rowStep = (pendingColour == Colour::White) ? +1 : -1;
+                    int slot = (clicked.row - pendingTo.row) * rowStep;
+
+                    if (clicked.col == pendingFrom.col && slot >= 0 && slot <= 4) {
+                        const PieceType options[4] = {
+                            PieceType::Queen, PieceType::Rook,
+                            PieceType::Bishop, PieceType::Knight
+                        };
+                        board.makeMove(selected, clicked, options[slot]);
+                    }
+
+                    // Cancel promotion if clicked outside promotion menu
+                    awaitingPromotion = false;
+                    selected = {-1, -1};
+                    continue;
+                }
 
                 if (selected.row == -1) {
                     // First click — select a piece if it's the right color
@@ -36,9 +56,18 @@ int main() {
                 } else {
                     // Second click — try to move
                     if (board.isLegalMove(selected, clicked)) {
-                        board.makeMove(selected, clicked);
+                        if (board.isPromotionMove(selected, clicked)) {
+                            awaitingPromotion = true;
+                            pendingFrom = selected;
+                            pendingTo = clicked;
+                            pendingColour = board.at(selected).colour;
+                        } else {
+                            board.makeMove(selected, clicked);
+                        }
                     }
-                    selected = {-1, -1};
+                    if (!awaitingPromotion) {
+                        selected = {-1, -1};
+                    }
                 }
             }
         }
@@ -57,7 +86,14 @@ int main() {
         }
 
         renderer.drawAllPieces(window, board);
-        renderer.drawMoveIndicators(window, destinations, board);
+
+        if (!awaitingPromotion) {
+            renderer.drawMoveIndicators(window, destinations, board);
+        }
+
+        if (awaitingPromotion) {
+            renderer.drawPromotionPicker(window, pendingTo, pendingColour);
+        }
         
         window.display();
     }
