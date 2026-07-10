@@ -143,3 +143,24 @@ void Renderer::drawCheckHighlights(sf::RenderWindow &window, const Board &board)
     checkHighlight.setFillColor(sf::Color(255, 0, 0, 130));
     window.draw(checkHighlight);
 }
+
+void Renderer::drawPromotionPicker(sf::RenderWindow &window, Square promotionSquare, Colour promotingColour) const {
+    const PieceType options[4] = {
+        PieceType::Queen, PieceType::Rook, PieceType::Bishop, PieceType::Knight
+    };
+
+    int rowStep = (promotingColour == Colour::White) ? +1 : -1;
+
+    for (int i = 0; i < 4; ++i) {
+        int row = promotionSquare.row + i * rowStep;
+
+        sf::RectangleShape bg(sf::Vector2f(squareSize_, squareSize_));
+        bg.setPosition(promotionSquare.col * squareSize_, promotionSquare.row * squareSize_);
+        bg.setFillColor(sf::Color(240, 240, 240, 245));
+        bg.setOutlineThickness(1.0f);
+        bg.setOutlineColor(sf::Color::Black);
+        window.draw(bg);
+
+        drawPiece(window, {options[i], promotingColour}, row, promotionSquare.col);
+    }
+}

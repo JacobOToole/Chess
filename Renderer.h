@@ -36,6 +36,8 @@ public:
 
     void drawCheckHighlights(sf::RenderWindow& window, const Board& board) const;
 
+    void drawPromotionPicker(sf::RenderWindow& window, Square promotionSquare, Colour promotingColour) const;
+
 private:
     // Declare private variables and texture array
 
