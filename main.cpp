@@ -33,12 +33,12 @@ int main() {
                     int rowStep = (pendingColour == Colour::White) ? +1 : -1;
                     int slot = (clicked.row - pendingTo.row) * rowStep;
 
-                    if (clicked.col == pendingFrom.col && slot >= 0 && slot <= 4) {
+                    if (clicked.col == pendingTo.col && slot >= 0 && slot <= 4) {
                         const PieceType options[4] = {
                             PieceType::Queen, PieceType::Rook,
                             PieceType::Bishop, PieceType::Knight
                         };
-                        board.makeMove(selected, clicked, options[slot]);
+                        board.makeMove(pendingFrom, pendingTo, options[slot]);
                     }
 
                     // Cancel promotion if clicked outside promotion menu
