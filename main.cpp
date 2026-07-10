@@ -8,9 +8,8 @@ int main() {
     sf::RenderWindow window(sf::VideoMode(640, 640), "Chess");
 
     Renderer renderer(80);
-    if (!renderer.loadTextures()) {
-        return 1;   // asset load failed; abort
-    }
+    if (!renderer.loadTextures()) return 1;
+    if (!renderer.loadFont()) return 1;
 
     Board board;
     Square selected{-1, -1};
@@ -94,6 +93,8 @@ int main() {
         if (awaitingPromotion) {
             renderer.drawPromotionPicker(window, pendingTo, pendingColour);
         }
+
+        renderer.drawCoordinateLabels(window);
         
         window.display();
     }

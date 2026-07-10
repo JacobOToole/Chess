@@ -42,6 +42,14 @@ bool Renderer::loadTextures() {
     return true;
 }
 
+bool Renderer::loadFont() {
+    if (!font_.loadFromFile("assets/arial.ttf")) {
+        std::cerr << "Failed to load font\n";
+        return false;
+    }
+    return true;
+}
+
 void Renderer::drawBoard(sf::RenderWindow& window) const {
     for (int row = 0; row < 8; ++row) {
         for (int col = 0; col < 8; ++col) {
@@ -50,6 +58,42 @@ void Renderer::drawBoard(sf::RenderWindow& window) const {
             square.setFillColor((row + col) % 2 == 0 ? lightColour_ : darkColour_);
             window.draw(square);
         }
+    }
+}
+
+void Renderer::drawCoordinateLabels(sf::RenderWindow &window) const {
+    const sf::Color labelColour(80, 80, 80);
+    const unsigned int charSize = 14;
+    const float padding = 4.0f;
+
+    // Column letters
+    for (int col = 0; col < 8; ++col) {
+        sf::Text text;
+        text.setFont(font_);
+        text.setString(std::string(1, static_cast<char>('a' + col)));
+        text.setCharacterSize(charSize);
+        text.setFillColor(labelColour);
+
+        sf::FloatRect bounds = text.getLocalBounds();
+        float x = (col + 1) * squareSize_ - bounds.width - padding;
+        float y = 8 * squareSize_ - bounds.height - padding - 2;
+        text.setPosition(x, y);
+        window.draw(text);
+    }
+
+    // Row numbers
+    for (int row = 0; row < 8; ++row) {
+        sf::Text text;
+        text.setFont(font_);
+        text.setString(std::to_string(8 - row));
+        text.setCharacterSize(charSize);
+        text.setFillColor(labelColour);
+
+        sf::FloatRect bounds = text.getLocalBounds();
+        float x = 8 * squareSize_ - bounds.width - padding;
+        float y = row * squareSize_ - padding + 3;
+        text.setPosition(x, y);
+        window.draw(text);
     }
 }
 
