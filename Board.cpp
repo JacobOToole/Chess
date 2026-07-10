@@ -27,9 +27,6 @@ Board::Board() {
     }
 }
 
-Piece Board::at(Square square) const {
-    return squares_[idx(square)];
-}
 
 void Board::addSlidingMoves(Square from,
                             std::initializer_list<std::pair<int, int>> directions,
@@ -52,7 +49,6 @@ void Board::addSlidingMoves(Square from,
         }
     }
 }
-
 void Board::addCastlingMoves(Square from, std::vector<Square> &out) const {
     Piece moving = at(from);
     int row = (moving.colour == Colour::White) ? 7 : 0;
@@ -159,7 +155,6 @@ void Board::addPawnAttacks(Square from, std::vector<Square> &out) const {
         }
     }
 }
-
 void Board::addBishopMoves(Square from, std::vector<Square> &out) const {
     addSlidingMoves(from, { {-1, -1}, {-1, 1}, {1, -1}, {+1, 1} } , out);
 }
@@ -172,7 +167,7 @@ void Board::addQueenMoves(Square from, std::vector<Square> &out) const {
         {0, -1}, {0, +1},
         {+1, -1}, {+1, 0}, {+1, +1}
     }, out);
-};
+}
 
 std::vector<Square> Board::legalDestinations(Square from) const {
     std::vector<Square> result;
@@ -298,7 +293,7 @@ void Board::determineCastlingRights() {
     }
 }
 
-void Board::makeMove(Square from, Square to) {
+void Board::makeMove(Square from, Square to, PieceType promoteTo) {
     Piece moving = at(from);
 
     // castling. if king moves two columns, relocate rook
@@ -317,17 +312,15 @@ void Board::makeMove(Square from, Square to) {
 
     // promotion
     Piece& landed = squares_[idx(to)];
-    if (landed.type == PieceType::Pawn) {
-        if ((landed.colour == Colour::White && to.row == 0) ||
-            (landed.colour == Colour::Black && to.row == 7)) {
-                landed.type = PieceType::Queen;
-            }
-    }
+    if (landed.type == PieceType::Pawn &&
+        ((landed.colour == Colour::White && to.row == 0) ||
+        (landed.colour == Colour::Black && to.row == 7))) {
+            landed.type = promoteTo;
+        }
 
     lastFrom_ = from;
     lastTo_ = to;
     sideToMove_ = (sideToMove_ == Colour::White) ? Colour::Black : Colour::White;
 
     determineCastlingRights();
-
 }

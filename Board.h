@@ -12,7 +12,7 @@ public:
     Board(); // sets up starting position
 
     // Return empty piece if square is empty
-    Piece at(Square square) const;
+    Piece at(Square square) const {return squares_[idx(square)];}
     Piece at(int row, int col) const { return at(Square(row, col)); };
     Colour sideToMove() const { return sideToMove_; }
 
@@ -20,7 +20,8 @@ public:
     std::vector<Square> legalDestinations(Square from) const;
     std::vector<Square> legalMoves(Square from) const;
 
-    void makeMove(Square from, Square to);
+    void makeMove(Square from, Square to, PieceType promoteTo = PieceType::Queen);
+    bool isPromotionMove(Square from, Square to) const;
 
     Square lastMoveFrom() const { return lastFrom_; }
     Square lastMoveTo() const { return lastTo_; }
