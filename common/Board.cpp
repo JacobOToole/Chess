@@ -27,6 +27,24 @@ Board::Board() {
     }
 }
 
+Board::GameState Board::state() const {
+    for (int row = 0; row < 8; ++row) {
+        for (int col = 0; col < 8; ++col) {
+            Square from{row, col};
+            Piece piece = at(from);
+            if (piece.empty() || piece.colour != sideToMove_) continue;
+
+            for (const Square& to : legalDestinations(from)) {
+                if (isLegalMove(from, to)) {
+                    return GameState::Ongoing;
+                }
+            }
+        }
+    }
+    return isInCheck(sideToMove_) ? GameState::Checkmate , GameState::Stalemate;
+}
+
+
 
 void Board::addSlidingMoves(Square from,
                             std::initializer_list<std::pair<int, int>> directions,

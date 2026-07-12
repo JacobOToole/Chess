@@ -11,6 +11,14 @@ class Board {
 public:
     Board(); // sets up starting position
 
+    enum class GameState {
+        Ongoing,
+        Checkmate,
+        Stalemate
+    };
+
+    GameState state() const;
+
     // Return empty piece if square is empty
     Piece at(Square square) const {return squares_[idx(square)];}
     Piece at(int row, int col) const { return at(Square(row, col)); };
