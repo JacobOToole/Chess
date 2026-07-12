@@ -295,7 +295,7 @@ void Board::determineCastlingRights() {
 
 void Board::makeMove(Square from, Square to, PieceType promoteTo) {
     Piece moving = at(from);
-    int dir = (moving.colour == Colour::White) ? 1 : -1;
+    int dir = (moving.colour == Colour::White) ? -1 : 1;
 
     // castling. if king moves two columns, relocate rook
     if (moving.type == PieceType::King && std::abs(to.col - from.col) == 2) {
@@ -313,6 +313,11 @@ void Board::makeMove(Square from, Square to, PieceType promoteTo) {
         enPassantTarget_ = Square (from.row + dir, from.col);
     } else {
         enPassantTarget_ = {-1, -1};
+    }
+
+    // Check if move being made is en passant
+    if (moving.type == PieceType::Pawn && std::abs(from.col - to.col) == 1 && at(to).empty()) {
+        squares_[idx(Square{from.row, to.col})] = Piece{};
     }
 
     squares_[idx(to)] = squares_[idx(from)];
