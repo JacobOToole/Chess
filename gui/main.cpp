@@ -1,7 +1,7 @@
 #include <SFML/Graphics.hpp>
 #include "Renderer.h"
-#include "Board.h"
-#include "Piece.h"
+#include "../common/Board.h"
+#include "../common/Piece.h"
 
 
 int main() {

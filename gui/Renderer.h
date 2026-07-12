@@ -4,8 +4,8 @@
 #pragma once
 
 #include <SFML/Graphics.hpp>
-#include "Piece.h"
-#include "Square.h"
+#include "../common/Piece.h"
+#include "../common/Square.h"
 #include <vector>
 
 class Board;
