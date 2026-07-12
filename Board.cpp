@@ -139,7 +139,7 @@ void Board::addPawnMoves(Square from, std::vector<Square> &out) const {
         if (!diag.onBoard()) continue;
 
         Piece target = at(diag);
-        if (!target.empty() && target.colour != moving.colour) {
+        if ((!target.empty() && target.colour != moving.colour) || diag == enPassantTarget_){
             out.push_back(diag);
         }
     }
@@ -295,6 +295,7 @@ void Board::determineCastlingRights() {
 
 void Board::makeMove(Square from, Square to, PieceType promoteTo) {
     Piece moving = at(from);
+    int dir = (moving.colour == Colour::White) ? 1 : -1;
 
     // castling. if king moves two columns, relocate rook
     if (moving.type == PieceType::King && std::abs(to.col - from.col) == 2) {
@@ -305,6 +306,13 @@ void Board::makeMove(Square from, Square to, PieceType promoteTo) {
             squares_[idx({to.row, 3})] = squares_[idx({to.row, 0})];
             squares_[idx({to.row, 0})] = Piece{};
         }
+    }
+
+    // Check for en passant privileges
+    if (moving.type == PieceType::Pawn && std::abs(from.row - to.row) == 2) {
+        enPassantTarget_ = Square (from.row + dir, from.col);
+    } else {
+        enPassantTarget_ = {-1, -1};
     }
 
     squares_[idx(to)] = squares_[idx(from)];

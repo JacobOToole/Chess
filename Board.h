@@ -27,14 +27,17 @@ public:
     Square lastMoveTo() const { return lastTo_; }
 
     Square kingSquare(Colour colour) const;
-    bool isSquareAttacked(Square square, Colour byColor) const;
-    bool isInCheck(Colour color) const;
+    bool isSquareAttacked(Square square, Colour byColour) const;
+    bool isInCheck(Colour colour) const;
 
-    bool canCastleKingside(Colour color) const {
-        return (color == Colour::White) ? whiteKingside_ : blackKingside_;
+    bool canCastleKingside(Colour colour) const {
+        return (colour == Colour::White) ? whiteKingside_ : blackKingside_;
     }
-    bool canCastleQueenside(Colour color) const {
-        return (color == Colour::White) ? whiteQueenside_ : blackQueenside_;
+    bool canCastleQueenside(Colour colour) const {
+        return (colour == Colour::White) ? whiteQueenside_ : blackQueenside_;
+    }
+
+    bool canEnPassant(Colour color) const {
     }
 
 
@@ -43,6 +46,7 @@ private:
     Colour sideToMove_ = Colour::White;
     Square lastFrom_{-1, -1};   // sentinel: no move yet
     Square lastTo_{-1, -1};
+    Square enPassantTarget_{-1, -1};
 
     // Castling rights
     bool whiteKingside_ = true;
