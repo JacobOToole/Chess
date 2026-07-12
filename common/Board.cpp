@@ -41,7 +41,7 @@ Board::GameState Board::state() const {
             }
         }
     }
-    return isInCheck(sideToMove_) ? GameState::Checkmate , GameState::Stalemate;
+    return isInCheck(sideToMove_) ? GameState::Checkmate : GameState::Stalemate;
 }
 
 

@@ -208,3 +208,47 @@ void Renderer::drawPromotionPicker(sf::RenderWindow &window, Square promotionSqu
         drawPiece(window, {options[i], promotingColour}, row, promotionSquare.col);
     }
 }
+
+void Renderer::drawGameOverBanner(sf::RenderWindow &window, Board::GameState state, Colour sideToMove) const {
+    if (state == Board::GameState::Ongoing) return;
+
+    sf::RectangleShape dim(sf::Vector2f(8 * squareSize_, 8 * squareSize_));
+    dim.setFillColor(sf::Color(0, 0, 0, 128));
+    window.draw(dim);
+
+    std::string message;
+
+    if (state == Board::GameState::Checkmate) {
+        message = (sideToMove == Colour::White) ? "Black wins by checkmate" : "White wins by checkmate";
+    } else {
+        message = "Stalemate";
+    }
+
+    // End game message
+    sf::Text text;
+    text.setFont(font_);
+    text.setString(message);
+    text.setCharacterSize(28);
+    text.setFillColor(sf::Color::White);
+    text.setOutlineColor(sf::Color::Black);
+    text.setOutlineThickness(2.0f);
+    text.setStyle(sf::Text::Bold);
+
+    sf::FloatRect bounds = text.getLocalBounds();
+    float x = (8 * squareSize_) / 2.0f - bounds.width / 2.0f;
+    float y = (8 * squareSize_) / 2.0f - bounds.height / 2.0f - 8.0f;
+    text.setPosition(x, y);
+
+    window.draw(text);
+
+    // New game subtitle
+    sf::Text subtitle;
+    subtitle.setFont(font_);
+    subtitle.setString("Press N for a new game");
+    subtitle.setCharacterSize(14);
+    subtitle.setFillColor(sf::Color(200, 200, 200));
+    sf::FloatRect subBounds = subtitle.getLocalBounds();
+    subtitle.setPosition((8 * squareSize_) / 2.0f - subBounds.width / 2.0f,
+                         y + bounds.height + 12);
+    window.draw(subtitle);
+}

@@ -8,6 +8,8 @@
 #include "../common/Square.h"
 #include <vector>
 
+#include "Board.h"
+
 class Board;
 
 class Renderer {
@@ -40,6 +42,10 @@ public:
     void drawCheckHighlights(sf::RenderWindow& window, const Board& board) const;
 
     void drawPromotionPicker(sf::RenderWindow& window, Square promotionSquare, Colour promotingColour) const;
+
+    void drawGameOverBanner(sf::RenderWindow& window,
+                        Board::GameState state,
+                        Colour sideToMove) const;
 
 private:
 
