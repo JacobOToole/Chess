@@ -3,7 +3,7 @@
 //
 
 #include "Renderer.h"
-#include "Board.h"
+#include "../common/Board.h"
 #include <iostream>
 
 Renderer::Renderer(int squareSize)

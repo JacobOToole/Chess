@@ -1,0 +1,2 @@
+add_executable(chess_engine main.cpp)
+target_link_libraries(chess_engine PRIVATE chess_common)
