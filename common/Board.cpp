@@ -362,3 +362,22 @@ bool Board::isPromotionMove(Square from, Square to) const {
     return (p.colour == Colour::White && to.row == 0) ||
            (p.colour == Colour::Black && to.row == 7);
 }
+
+bool Board::isInsufficientMaterial() const {
+    int whiteMinors = 0, blackMinors = 0;
+
+    for (int i = 0; i < 64; ++i) {
+        Piece p = squares_[i];
+        if (p.empty()) continue;
+
+        // any of these pieces means they can still deliver mate
+        if (p.type == PieceType::Queen || p.type == PieceType::Rook || p.type == PieceType::Pawn) {
+            return false;
+        }
+
+        if (p.type == PieceType::Knight || p.type == PieceType::Bishop) {
+            (p.colour == Colour::White ? whiteMinors : blackMinors)++;
+        }
+    }
+    return whiteMinors <= 1 || blackMinors <= 1;
+}

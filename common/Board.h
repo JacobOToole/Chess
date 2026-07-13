@@ -14,7 +14,10 @@ public:
     enum class GameState {
         Ongoing,
         Checkmate,
-        Stalemate
+        Stalemate,
+        DrawByStalemate,
+        DrawByFiftyMoveRule,
+        DrawByRepetition
     };
 
     GameState state() const;
@@ -37,6 +40,7 @@ public:
     Square kingSquare(Colour colour) const;
     bool isSquareAttacked(Square square, Colour byColour) const;
     bool isInCheck(Colour colour) const;
+    bool isInsufficientMaterial() const;
 
     bool canCastleKingside(Colour colour) const {
         return (colour == Colour::White) ? whiteKingside_ : blackKingside_;

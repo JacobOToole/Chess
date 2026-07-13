@@ -22,6 +22,7 @@ int main() {
         sf::Event event;
         while (window.pollEvent(event)) {
             if (event.type == sf::Event::Closed) window.close();
+            
             if (event.type == sf::Event::KeyPressed && event.key.code == sf::Keyboard::N) {
                 board = Board{};                 // reset to starting position
                 selected = {-1, -1};
@@ -32,6 +33,7 @@ int main() {
                  event.mouseButton.button == sf::Mouse::Left) {
 
                 if (board.state() != Board::GameState::Ongoing) continue;
+
                 Square clicked{event.mouseButton.y / 80, event.mouseButton.x / 80};
                 if (!clicked.onBoard()) continue;
 
