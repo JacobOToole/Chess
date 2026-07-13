@@ -15,7 +15,7 @@ public:
         Ongoing,
         Checkmate,
         Stalemate,
-        DrawByStalemate,
+        DrawByInsufficientMaterial,
         DrawByFiftyMoveRule,
         DrawByRepetition
     };

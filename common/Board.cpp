@@ -36,6 +36,7 @@ Board::GameState Board::state() const {
 
             for (const Square& to : legalDestinations(from)) {
                 if (isLegalMove(from, to)) {
+                    if (isInsufficientMaterial()) return GameState::DrawByInsufficientMaterial;
                     return GameState::Ongoing;
                 }
             }
