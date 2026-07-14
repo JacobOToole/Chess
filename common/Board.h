@@ -49,8 +49,6 @@ public:
         return (colour == Colour::White) ? whiteQueenside_ : blackQueenside_;
     }
 
-    bool canEnPassant(Colour color) const {
-    }
 
 
 private:
@@ -59,6 +57,8 @@ private:
     Square lastFrom_{-1, -1};   // sentinel: no move yet
     Square lastTo_{-1, -1};
     Square enPassantTarget_{-1, -1};
+
+    int halfmoveClock_ = 0;
 
     // Castling rights
     bool whiteKingside_ = true;

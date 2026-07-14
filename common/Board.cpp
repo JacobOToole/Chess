@@ -28,21 +28,27 @@ Board::Board() {
 }
 
 Board::GameState Board::state() const {
-    for (int row = 0; row < 8; ++row) {
-        for (int col = 0; col < 8; ++col) {
+    bool hasLegalMove = false;
+    for (int row = 0; row < 8 && !hasLegalMove; ++row) {
+        for (int col = 0; col < 8 && !hasLegalMove; ++col) {
             Square from{row, col};
             Piece piece = at(from);
             if (piece.empty() || piece.colour != sideToMove_) continue;
 
             for (const Square& to : legalDestinations(from)) {
-                if (isLegalMove(from, to)) {
-                    if (isInsufficientMaterial()) return GameState::DrawByInsufficientMaterial;
-                    return GameState::Ongoing;
-                }
+                if (isLegalMove(from, to)) { hasLegalMove = true; break; }
             }
         }
     }
-    return isInCheck(sideToMove_) ? GameState::Checkmate : GameState::Stalemate;
+
+    if (!hasLegalMove) {
+        return isInCheck(sideToMove_) ? GameState::Checkmate : GameState::Stalemate;
+    }
+
+    // Check draw conditions
+    if (halfmoveClock_ >= 100) return GameState::DrawByFiftyMoveRule;
+    if (isInsufficientMaterial()) return GameState::DrawByInsufficientMaterial;
+    return GameState::Ongoing;
 }
 
 
@@ -314,6 +320,7 @@ void Board::determineCastlingRights() {
 
 void Board::makeMove(Square from, Square to, PieceType promoteTo) {
     Piece moving = at(from);
+    bool isCapture = !at(to).empty();
     int dir = (moving.colour == Colour::White) ? -1 : 1;
 
     // castling. if king moves two columns, relocate rook
@@ -355,6 +362,10 @@ void Board::makeMove(Square from, Square to, PieceType promoteTo) {
     sideToMove_ = (sideToMove_ == Colour::White) ? Colour::Black : Colour::White;
 
     determineCastlingRights();
+
+    if (moving.type == PieceType::Pawn || isCapture) {
+        halfmoveClock_ = 0;
+    } else halfmoveClock_++;
 }
 
 bool Board::isPromotionMove(Square from, Square to) const {
