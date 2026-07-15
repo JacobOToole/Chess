@@ -5,6 +5,7 @@
 #include "Piece.h"
 #include "Square.h"
 #include <array>
+#include <cstdint>
 #include <vector>
 
 class Board {
@@ -21,6 +22,8 @@ public:
     };
 
     GameState state() const;
+
+    static void initZorbist();
 
     // Return empty piece if square is empty
     Piece at(Square square) const {return squares_[idx(square)];}
@@ -49,8 +52,6 @@ public:
         return (colour == Colour::White) ? whiteQueenside_ : blackQueenside_;
     }
 
-
-
 private:
     std::array<Piece, 64> squares_{};
     Colour sideToMove_ = Colour::White;
@@ -59,6 +60,17 @@ private:
     Square enPassantTarget_{-1, -1};
 
     int halfmoveClock_ = 0;
+
+    // Zorbist hash - for 3 move repetition and transposition tables (engine)
+    static uint64_t zorbistPiece[2][7][64]; // colour, piece, square
+    static uint64_t zorbistSideToMove;
+    static uint64_t zorbistCastling[4]; // wks, wqs, bks, bqs
+    static uint64_t zorbistEnPassant[8]; // each column
+
+    uint64_t currentHash_ = 0;
+    std::vector<uint64_t> positionHistory_;
+
+    void rehash();
 
     // Castling rights
     bool whiteKingside_ = true;

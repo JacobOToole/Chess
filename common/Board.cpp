@@ -4,8 +4,8 @@
 
 #include "Board.h"
 #include <cstdlib>
+#include <random>
 
-#include "SFML/Graphics/Color.hpp"
 
 Board::Board() {
     const PieceType backRank[8] = {
@@ -51,7 +51,35 @@ Board::GameState Board::state() const {
     return GameState::Ongoing;
 }
 
+void Board::initZorbist() {
+    /**
+     * Initialise the zorbist arrays with random 64-bit numbers that are set with a
+     * fixed seed (student number). These numbers are XOR'ed in/out with each move,
+     * keeping a consistent 64-bit hashing of the position with every move and state.
+     */
+    std::mt19937_64 rng(0x11580232);
 
+    for (int c = 0; c < 2; c++) {
+        for (int p = 0; p < 7; p++) {
+            for (int sq = 0; sq < 64; sq++) {
+                zorbistPiece[c][p][sq] = rng();
+            }
+        }
+    }
+
+    zorbistSideToMove = rng();
+
+    for (int i = 0; i < 4; i++) {
+        zorbistCastling[i] = rng();
+    }
+    for (int i = 0; i < 8; i++) {
+        zorbistEnPassant[i] = rng();
+    }
+}
+
+void Board::rehash() {
+    
+}
 
 void Board::addSlidingMoves(Square from,
                             std::initializer_list<std::pair<int, int>> directions,
