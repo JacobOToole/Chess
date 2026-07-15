@@ -220,8 +220,12 @@ void Renderer::drawGameOverBanner(sf::RenderWindow &window, Board::GameState sta
 
     if (state == Board::GameState::Checkmate) {
         message = (sideToMove == Colour::White) ? "Black wins by checkmate" : "White wins by checkmate";
-    } else {
+    } else if (state == Board::GameState::Stalemate) {
         message = "Stalemate";
+    } else if (state == Board::GameState::DrawByInsufficientMaterial) {
+        message = "Draw due to insufficient material";
+    } else if (state == Board::GameState::DrawByRepetition) {
+        message = "Draw due to 3-fold repetition";
     }
 
     // End game message

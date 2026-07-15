@@ -4,8 +4,12 @@
 
 #include "Board.h"
 #include <cstdlib>
+#include <random>
 
-#include "SFML/Graphics/Color.hpp"
+uint64_t Board::zorbistPiece[2][7][64];
+uint64_t Board::zorbistSideToMove;
+uint64_t Board::zorbistCastling[4];
+uint64_t Board::zorbistEnPassant[8];
 
 Board::Board() {
     const PieceType backRank[8] = {
@@ -25,26 +29,88 @@ Board::Board() {
         squares_[idx({6, col})] = {PieceType::Pawn, Colour::White};
         squares_[idx({7, col})] = {backRank[col], Colour::White};
     }
+
+    rehash();
 }
 
 Board::GameState Board::state() const {
-    for (int row = 0; row < 8; ++row) {
-        for (int col = 0; col < 8; ++col) {
+    bool hasLegalMove = false;
+    for (int row = 0; row < 8 && !hasLegalMove; ++row) {
+        for (int col = 0; col < 8 && !hasLegalMove; ++col) {
             Square from{row, col};
             Piece piece = at(from);
             if (piece.empty() || piece.colour != sideToMove_) continue;
 
             for (const Square& to : legalDestinations(from)) {
-                if (isLegalMove(from, to)) {
-                    return GameState::Ongoing;
-                }
+                if (isLegalMove(from, to)) { hasLegalMove = true; break; }
             }
         }
     }
-    return isInCheck(sideToMove_) ? GameState::Checkmate : GameState::Stalemate;
+
+    if (!hasLegalMove) {
+        return isInCheck(sideToMove_) ? GameState::Checkmate : GameState::Stalemate;
+    }
+
+    // Check draw conditions
+    if (halfmoveClock_ >= 100) return GameState::DrawByFiftyMoveRule;
+    if (isInsufficientMaterial()) return GameState::DrawByInsufficientMaterial;
+
+    int count = 0;
+    for (uint64_t h : positionHistory_) {
+        if (h == currentHash_) count++;
+    }
+    if (count >= 3) return GameState::DrawByRepetition;
+
+    return GameState::Ongoing;
 }
 
+void Board::initZorbist() {
+    /**
+     * Initialise the zorbist arrays with random 64-bit numbers that are set with a
+     * fixed seed (student number). These numbers are XOR'ed in/out with each move,
+     * keeping a consistent 64-bit hashing of the position with every move and state.
+     */
+    std::mt19937_64 rng(0x11580232);
 
+    for (int c = 0; c < 2; c++) {
+        for (int p = 0; p < 7; p++) {
+            for (int sq = 0; sq < 64; sq++) {
+                zorbistPiece[c][p][sq] = rng();
+            }
+        }
+    }
+
+    zorbistSideToMove = rng();
+
+    for (int i = 0; i < 4; i++) {
+        zorbistCastling[i] = rng();
+    }
+    for (int i = 0; i < 8; i++) {
+        zorbistEnPassant[i] = rng();
+    }
+}
+
+void Board::rehash() {
+    currentHash_ = 0;
+    for (int i = 0; i < 64; i++) {
+        Piece p = squares_[i];
+        if (!p.empty()) {
+            currentHash_ ^= zorbistPiece[static_cast<int>(p.colour)]
+                                        [static_cast<int>(p.type)][i];
+        }
+    }
+
+    if (sideToMove_ == Colour::Black) currentHash_ ^= zorbistSideToMove; // White's turn has this value XOR'd out
+
+    if (whiteKingside_) currentHash_ ^= zorbistCastling[0];
+    if (whiteQueenside_) currentHash_ ^= zorbistCastling[1];
+    if (blackKingside_) currentHash_ ^= zorbistCastling[2];
+    if (blackQueenside_) currentHash_ ^= zorbistCastling[3];
+
+    if (enPassantTarget_.onBoard()) {
+        currentHash_ ^= zorbistEnPassant[enPassantTarget_.col];
+    }
+}
 
 void Board::addSlidingMoves(Square from,
                             std::initializer_list<std::pair<int, int>> directions,
@@ -313,7 +379,26 @@ void Board::determineCastlingRights() {
 
 void Board::makeMove(Square from, Square to, PieceType promoteTo) {
     Piece moving = at(from);
+    Piece captured = at(to);
+    bool isCapture = !captured.empty();
     int dir = (moving.colour == Colour::White) ? -1 : 1;
+
+    // Remove piece from 'from' square
+    currentHash_ ^= zorbistPiece[static_cast<int>(moving.colour)]
+                                [static_cast<int>(moving.type)][idx(from)];
+
+    // Remove captured piece
+    if (isCapture) {
+        currentHash_ ^= zorbistPiece[static_cast<int>(captured.colour)]
+                                [static_cast<int>(captured.type)][idx(to)];
+    }
+
+    currentHash_ ^= zorbistSideToMove;
+
+    // Remove enPassant target
+    if (enPassantTarget_.onBoard()) {
+        currentHash_ ^= zorbistEnPassant[enPassantTarget_.col];
+    }
 
     // castling. if king moves two columns, relocate rook
     if (moving.type == PieceType::King && std::abs(to.col - from.col) == 2) {
@@ -354,6 +439,38 @@ void Board::makeMove(Square from, Square to, PieceType promoteTo) {
     sideToMove_ = (sideToMove_ == Colour::White) ? Colour::Black : Colour::White;
 
     determineCastlingRights();
+
+    if (moving.type == PieceType::Pawn || isCapture) {
+        halfmoveClock_ = 0;
+    } else halfmoveClock_++;
+
+    // Add piece (accounting for promotion above) to square
+    currentHash_ ^= zorbistPiece[static_cast<int>(landed.colour)]
+                                [static_cast<int>(landed.type)][idx(to)];
+
+    // Declare enPassant target if one exists
+    if (enPassantTarget_.onBoard()) {
+        currentHash_ ^= zorbistEnPassant[enPassantTarget_.col];
+    }
+
+    // Detect en passant
+    bool isEnPassant = (moving.type == PieceType::Pawn &&
+                        std::abs(from.col - to.col) == 1 &&
+                        at(to).empty());
+    if (isEnPassant) {
+        Square capturedPawnSq{from.row, to.col};
+        Piece capturedPawn = at(capturedPawnSq);
+        currentHash_ ^= zorbistPiece[static_cast<int>(capturedPawn.colour)]
+                                    [static_cast<int>(capturedPawn.type)][idx(capturedPawnSq)];
+    }
+
+    // TODO: Zorbist castling rights, requires tracking previous rights before determineCastlingRights() ran
+
+
+    if (moving.type == PieceType::Pawn || !captured.empty()) { // Account for castling rights LATER
+        positionHistory_.clear(); // no earlier position can recur past this point
+    }
+    positionHistory_.push_back(currentHash_);
 }
 
 bool Board::isPromotionMove(Square from, Square to) const {
@@ -361,4 +478,23 @@ bool Board::isPromotionMove(Square from, Square to) const {
     if (p.type != PieceType::Pawn) return false;
     return (p.colour == Colour::White && to.row == 0) ||
            (p.colour == Colour::Black && to.row == 7);
+}
+
+bool Board::isInsufficientMaterial() const {
+    int whiteMinors = 0, blackMinors = 0;
+
+    for (int i = 0; i < 64; ++i) {
+        Piece p = squares_[i];
+        if (p.empty()) continue;
+
+        // any of these pieces means they can still deliver mate
+        if (p.type == PieceType::Queen || p.type == PieceType::Rook || p.type == PieceType::Pawn) {
+            return false;
+        }
+
+        if (p.type == PieceType::Knight || p.type == PieceType::Bishop) {
+            (p.colour == Colour::White ? whiteMinors : blackMinors)++;
+        }
+    }
+    return whiteMinors <= 1 || blackMinors <= 1;
 }
