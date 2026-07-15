@@ -12,16 +12,16 @@ A rudimentary chess application with a rules-complete GUI and a planned UCI-comp
 - En passant captures
 - Pawn promotion with an interactive picker
 - Check detection that uses a simulate-and-verify legality filter, which handles pinned pieces, discovered checks, and moves into check
+- Complete draw detection, with zorbist hasing used to detect three-fold repetition
 
 **Interface** 
 - Click-to-move with legal move highlighting
 - Last move square highlight
 - Check highlight
 - Coodrinate labels
-- End game 'Game over' screen
+- 'Game over' screen (Checkmate, stalemate, three types of draws)
 
 **Planned**
-- Complete draw detection (only detects stalemate at the moment)
 - FEN import and export
 - UCI engine integration
 - **Custom engine** with minimax search and alpha-beta pruning
