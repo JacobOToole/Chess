@@ -6,6 +6,10 @@
 #include <cstdlib>
 #include <random>
 
+uint64_t Board::zorbistPiece[2][7][64];
+uint64_t Board::zorbistSideToMove;
+uint64_t Board::zorbistCastling[4];
+uint64_t Board::zorbistEnPassant[8];
 
 Board::Board() {
     const PieceType backRank[8] = {
@@ -50,6 +54,13 @@ Board::GameState Board::state() const {
     // Check draw conditions
     if (halfmoveClock_ >= 100) return GameState::DrawByFiftyMoveRule;
     if (isInsufficientMaterial()) return GameState::DrawByInsufficientMaterial;
+
+    int count = 0;
+    for (uint64_t h : positionHistory_) {
+        if (h == currentHash_) count++;
+    }
+    if (count >= 3) return GameState::DrawByRepetition;
+
     return GameState::Ongoing;
 }
 
@@ -368,8 +379,26 @@ void Board::determineCastlingRights() {
 
 void Board::makeMove(Square from, Square to, PieceType promoteTo) {
     Piece moving = at(from);
-    bool isCapture = !at(to).empty();
+    Piece captured = at(to);
+    bool isCapture = !captured.empty();
     int dir = (moving.colour == Colour::White) ? -1 : 1;
+
+    // Remove piece from 'from' square
+    currentHash_ ^= zorbistPiece[static_cast<int>(moving.colour)]
+                                [static_cast<int>(moving.type)][idx(from)];
+
+    // Remove captured piece
+    if (isCapture) {
+        currentHash_ ^= zorbistPiece[static_cast<int>(captured.colour)]
+                                [static_cast<int>(captured.type)][idx(to)];
+    }
+
+    currentHash_ ^= zorbistSideToMove;
+
+    // Remove enPassant target
+    if (enPassantTarget_.onBoard()) {
+        currentHash_ ^= zorbistEnPassant[enPassantTarget_.col];
+    }
 
     // castling. if king moves two columns, relocate rook
     if (moving.type == PieceType::King && std::abs(to.col - from.col) == 2) {
@@ -414,6 +443,34 @@ void Board::makeMove(Square from, Square to, PieceType promoteTo) {
     if (moving.type == PieceType::Pawn || isCapture) {
         halfmoveClock_ = 0;
     } else halfmoveClock_++;
+
+    // Add piece (accounting for promotion above) to square
+    currentHash_ ^= zorbistPiece[static_cast<int>(landed.colour)]
+                                [static_cast<int>(landed.type)][idx(to)];
+
+    // Declare enPassant target if one exists
+    if (enPassantTarget_.onBoard()) {
+        currentHash_ ^= zorbistEnPassant[enPassantTarget_.col];
+    }
+
+    // Detect en passant
+    bool isEnPassant = (moving.type == PieceType::Pawn &&
+                        std::abs(from.col - to.col) == 1 &&
+                        at(to).empty());
+    if (isEnPassant) {
+        Square capturedPawnSq{from.row, to.col};
+        Piece capturedPawn = at(capturedPawnSq);
+        currentHash_ ^= zorbistPiece[static_cast<int>(capturedPawn.colour)]
+                                    [static_cast<int>(capturedPawn.type)][idx(capturedPawnSq)];
+    }
+
+    // TODO: Zorbist castling rights, requires tracking previous rights before determineCastlingRights() ran
+
+
+    if (moving.type == PieceType::Pawn || !captured.empty()) { // Account for castling rights LATER
+        positionHistory_.clear(); // no earlier position can recur past this point
+    }
+    positionHistory_.push_back(currentHash_);
 }
 
 bool Board::isPromotionMove(Square from, Square to) const {

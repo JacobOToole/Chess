@@ -224,6 +224,8 @@ void Renderer::drawGameOverBanner(sf::RenderWindow &window, Board::GameState sta
         message = "Stalemate";
     } else if (state == Board::GameState::DrawByInsufficientMaterial) {
         message = "Draw due to insufficient material";
+    } else if (state == Board::GameState::DrawByRepetition) {
+        message = "Draw due to 3-fold repetition";
     }
 
     // End game message

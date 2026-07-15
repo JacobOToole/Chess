@@ -5,6 +5,7 @@
 
 
 int main() {
+    Board::initZorbist();
     sf::RenderWindow window(sf::VideoMode(640, 640), "Chess");
 
     Renderer renderer(80);
