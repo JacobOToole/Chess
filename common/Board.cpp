@@ -25,6 +25,8 @@ Board::Board() {
         squares_[idx({6, col})] = {PieceType::Pawn, Colour::White};
         squares_[idx({7, col})] = {backRank[col], Colour::White};
     }
+
+    rehash();
 }
 
 Board::GameState Board::state() const {
@@ -78,7 +80,25 @@ void Board::initZorbist() {
 }
 
 void Board::rehash() {
-    
+    currentHash_ = 0;
+    for (int i = 0; i < 64; i++) {
+        Piece p = squares_[i];
+        if (!p.empty()) {
+            currentHash_ ^= zorbistPiece[static_cast<int>(p.colour)]
+                                        [static_cast<int>(p.type)][i];
+        }
+    }
+
+    if (sideToMove_ == Colour::Black) currentHash_ ^= zorbistSideToMove; // White's turn has this value XOR'd out
+
+    if (whiteKingside_) currentHash_ ^= zorbistCastling[0];
+    if (whiteQueenside_) currentHash_ ^= zorbistCastling[1];
+    if (blackKingside_) currentHash_ ^= zorbistCastling[2];
+    if (blackQueenside_) currentHash_ ^= zorbistCastling[3];
+
+    if (enPassantTarget_.onBoard()) {
+        currentHash_ ^= zorbistEnPassant[enPassantTarget_.col];
+    }
 }
 
 void Board::addSlidingMoves(Square from,
