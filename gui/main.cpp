@@ -2,6 +2,7 @@
 #include "Renderer.h"
 #include "../common/Board.h"
 #include "../common/Piece.h"
+#include <iostream>
 
 
 int main() {
@@ -19,6 +20,9 @@ int main() {
     Square pendingTo  {-1, -1};
     Colour pendingColour = Colour::White;
 
+    // TESTING - debug (arbitrary test position)
+    board.setFromFen("rnbqkb1r/pp1ppppp/5n2/2pP4/8/8/PPP1PPPP/RNBQKBNR w KQkq c6 0 3");
+
     while (window.isOpen()) {
         sf::Event event;
         while (window.pollEvent(event)) {
@@ -28,6 +32,11 @@ int main() {
                 board = Board{};                 // reset to starting position
                 selected = {-1, -1};
                 awaitingPromotion = false;
+            }
+            if (event.type == sf::Event::KeyPressed && event.key.code == sf::Keyboard::F) {
+                // Print current position as FEN to the console
+                std::cout << "Fen at Move " << board.fullMoveNumber()
+                          << ": " << board.toFen() << "\n";
             }
 
             else if (event.type == sf::Event::MouseButtonPressed &&

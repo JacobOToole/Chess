@@ -5,6 +5,7 @@
 #include "Board.h"
 #include <cstdlib>
 #include <random>
+#include <sstream>
 
 uint64_t Board::zorbistPiece[2][7][64];
 uint64_t Board::zorbistSideToMove;
@@ -484,6 +485,11 @@ void Board::makeMove(Square from, Square to, PieceType promoteTo) {
         positionHistory_.clear(); // no earlier position can recur past this point
     }
     positionHistory_.push_back(currentHash_);
+
+    if (sideToMove_ == Colour::White) {
+        // We just flipped from Black to White, so a full move completed.
+        fullmoveNumber_++;
+    }
 }
 
 bool Board::isPromotionMove(Square from, Square to) const {
@@ -510,4 +516,144 @@ bool Board::isInsufficientMaterial() const {
         }
     }
     return whiteMinors <= 1 || blackMinors <= 1;
+}
+
+std::string Board::toFen() const {
+    std::ostringstream fen;
+
+    // Write pieces
+    for (int row = 0; row < 8; row++) {
+        int emptyRun = 0;
+        for (int col = 0; col < 8; col++) {
+            Piece p = at({row, col});
+            if (p.empty()) {
+                emptyRun++;
+            } else {
+                if (emptyRun > 0) {
+                    fen << emptyRun;
+                    emptyRun = 0;
+                }
+                char pieceLetter;
+                switch (p.type) {
+                    case PieceType::Pawn: pieceLetter = 'p'; break;
+                    case PieceType::Knight: pieceLetter = 'n'; break;
+                    case PieceType::Bishop: pieceLetter = 'b'; break;
+                    case PieceType::Rook: pieceLetter = 'r'; break;
+                    case PieceType::Queen: pieceLetter = 'q'; break;
+                    case PieceType::King: pieceLetter = 'k'; break;
+                    default: pieceLetter = '?'; break;
+                }
+                if (p.colour == Colour::White) { pieceLetter = std::toupper(pieceLetter); }
+                fen << pieceLetter;
+            }
+        }
+        if (emptyRun > 0) fen << emptyRun;
+        if (row < 7) fen << '/';
+    }
+    // Write side to move
+    fen << ' ' << (sideToMove_ == Colour::White ? 'w' : 'b');
+
+    // Write castling rights
+    fen << ' ';
+    std::string castlingRights;
+    if (whiteKingside_) castlingRights += 'K';
+    if (whiteQueenside_) castlingRights += 'Q';
+    if (blackKingside_) castlingRights += 'k';
+    if (blackQueenside_) castlingRights += 'q';
+    fen << (castlingRights.empty() ? "-" : castlingRights);
+
+    // Write enPassant target
+    fen << ' ';
+    if (enPassantTarget_.onBoard()) {
+        fen << static_cast<char>('a' + enPassantTarget_.col)
+            << static_cast<char>('0' + (8 - enPassantTarget_.row));
+    } else {
+        fen << '-';
+    }
+
+    // Write halfmove clock & fullmove clock
+    fen << ' ' << halfmoveClock_ << ' ' << fullmoveNumber_;
+
+    return fen.str();
+}
+
+bool Board::setFromFen(const std::string &fen) {
+    std::istringstream fenStream(fen);
+    std::string pieces, side, castlingRights, enPassant;
+    int halfmove, fullmove;
+    if (!(fenStream >> pieces >> side >> castlingRights >> enPassant >> halfmove >> fullmove)) {
+        return false;   // fewer than 6 fields
+    }
+
+    // Reset states
+    squares_.fill(Piece{});
+    whiteKingside_ = whiteQueenside_ = blackKingside_ = blackQueenside_ = false;
+    enPassantTarget_ = {-1, -1};
+
+    // Parse pieces
+    int row = 0, col = 0;
+    for (char ch : pieces) {
+        if (ch == '/') {
+            if (col != 8) return false;
+            row++;
+            col = 0;
+        } else if (std::isdigit(ch)) {
+            col += (ch - '0'); // convert digit character to integer value
+        } else {
+            PieceType pieceType;
+            switch (std::tolower(ch)) {
+                case 'p': pieceType = PieceType::Pawn; break;
+                case 'n': pieceType = PieceType::Knight; break;
+                case 'b': pieceType = PieceType::Bishop; break;
+                case 'r': pieceType = PieceType::Rook; break;
+                case 'q': pieceType = PieceType::Queen; break;
+                case 'k': pieceType = PieceType::King; break;
+                default: return false;
+            }
+            Colour colour = std::isupper(ch) ? Colour::White : Colour::Black;
+            squares_[idx({row, col})] = {pieceType, colour};
+            col++;
+        }
+    }
+    if (row != 7 || col != 8) return false;
+
+    // Side to move
+    if (side == "w") sideToMove_ = Colour::White;
+    else if (side == "b") sideToMove_ = Colour::Black;
+    else return false;
+
+    // Castling rights
+    if (castlingRights != "-") {
+        for (char ch : castlingRights) {
+            switch (ch) {
+                case 'K': whiteKingside_ = true; break;
+                case 'Q': whiteQueenside_ = true; break;
+                case 'k': blackKingside_ = true; break;
+                case 'q': blackQueenside_ = true; break;
+                default: return false;
+            }
+        }
+    }
+
+    // EnPassant target
+    if (enPassant != "-") {
+        if (enPassant.size() != 2) return false;
+        int epCol = enPassant[0] - 'a';
+        int epRow = 8 - (enPassant[1] - '0');
+        if (epCol < 0 || epCol > 7 || epRow < 0 || epRow > 7) return false;
+        enPassantTarget_ = { epRow, epCol };
+    }
+
+    // Counters
+    halfmoveClock_ = halfmove;
+    fullmoveNumber_ = fullmove;
+
+    lastFrom_ = {-1, -1};
+    lastTo_ = {-1, -1};
+
+    positionHistory_.clear();
+    rehash();
+    positionHistory_.push_back(currentHash_);
+
+    return true;
 }
