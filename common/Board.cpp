@@ -438,8 +438,21 @@ void Board::makeMove(Square from, Square to, PieceType promoteTo) {
     lastTo_ = to;
     sideToMove_ = (sideToMove_ == Colour::White) ? Colour::Black : Colour::White;
 
+
+    bool oldWKS = whiteKingside_;
+    bool oldWQS = whiteQueenside_;
+    bool oldBKS = blackKingside_;
+    bool oldBQS = blackQueenside_;
+
     determineCastlingRights();
 
+    // XOR out any rights that were revoked
+    if (oldWKS && !whiteKingside_)  currentHash_ ^= zorbistCastling[0];
+    if (oldWQS && !whiteQueenside_) currentHash_ ^= zorbistCastling[1];
+    if (oldBKS && !blackKingside_)  currentHash_ ^= zorbistCastling[2];
+    if (oldBQS && !blackQueenside_) currentHash_ ^= zorbistCastling[3];
+
+    // Update half moveclock for 50 move rule
     if (moving.type == PieceType::Pawn || isCapture) {
         halfmoveClock_ = 0;
     } else halfmoveClock_++;
