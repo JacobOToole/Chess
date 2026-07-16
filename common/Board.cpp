@@ -578,5 +578,44 @@ std::string Board::toFen() const {
 }
 
 bool Board::setFromFen(const std::string &fen) {
+    std::istringstream fenStream(fen);
+    std::string pieces, side, castlingRights, enPassant;
+    int halfmove, fullmove;
+    if (!(fenStream >> pieces >> side >> castlingRights >> enPassant >> halfmove >> fullmove)) {
+        return false;   // fewer than 6 fields
+    }
+
+    // Reset states
+    squares_.fill(Piece{});
+    whiteKingside_ = whiteQueenside_ = blackKingside_ = blackQueenside_ = false;
+    enPassantTarget_ = {-1, -1};
+
+    // Parse pieces
+    int row = 0, col = 0;
+    for (char ch : pieces) {
+        if (ch == '/') {
+            if (col != 8) return false;
+            row++;
+            col = 0;
+        } else if (std::isdigit(ch)) {
+            col += (ch - '0'); // convert digit character to integer value
+        } else {
+            PieceType pieceType;
+            switch (std::tolower(ch)) {
+                case 'p': pieceType = PieceType::Pawn; break;
+                case 'n': pieceType = PieceType::Knight; break;
+                case 'b': pieceType = PieceType::Bishop; break;
+                case 'r': pieceType = PieceType::Rook; break;
+                case 'q': pieceType = PieceType::Queen; break;
+                case 'k': pieceType = PieceType::King; break;
+                default: return false;
+            }
+            Colour colour = std::isupper(ch) ? Colour::White : Colour::Black;
+            squares_[idx({row, col})] = {pieceType, colour};
+            col++;
+        }
+    }
+    if (row != 7 || col != 8) return false;
+
     return true;
 }

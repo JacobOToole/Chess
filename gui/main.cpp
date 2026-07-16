@@ -20,7 +20,7 @@ int main() {
     Square pendingTo  {-1, -1};
     Colour pendingColour = Colour::White;
 
-    // TESTING - debug
+    // TESTING - debug (arbitrary test position)
     board.setFromFen("r3k2r/8/8/8/8/8/8/R3K2R w KQkq - 0 1");
 
     while (window.isOpen()) {
