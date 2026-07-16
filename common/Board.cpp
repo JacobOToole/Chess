@@ -5,6 +5,7 @@
 #include "Board.h"
 #include <cstdlib>
 #include <random>
+#include <sstream>
 
 uint64_t Board::zorbistPiece[2][7][64];
 uint64_t Board::zorbistSideToMove;
@@ -484,6 +485,11 @@ void Board::makeMove(Square from, Square to, PieceType promoteTo) {
         positionHistory_.clear(); // no earlier position can recur past this point
     }
     positionHistory_.push_back(currentHash_);
+
+    if (sideToMove_ == Colour::White) {
+        // We just flipped from Black to White, so a full move completed.
+        fullmoveNumber_++;
+    }
 }
 
 bool Board::isPromotionMove(Square from, Square to) const {
@@ -510,4 +516,12 @@ bool Board::isInsufficientMaterial() const {
         }
     }
     return whiteMinors <= 1 || blackMinors <= 1;
+}
+
+std::string Board::toFen() const {
+    return "";
+}
+
+bool Board::setFromFen(const std::string &fen) {
+    return true;
 }

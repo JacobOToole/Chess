@@ -7,6 +7,7 @@
 #include <array>
 #include <cstdint>
 #include <vector>
+#include <string>
 
 class Board {
 public:
@@ -52,6 +53,9 @@ public:
         return (colour == Colour::White) ? whiteQueenside_ : blackQueenside_;
     }
 
+    std::string toFen() const;
+    bool setFromFen(const std::string& fen);
+
 private:
     std::array<Piece, 64> squares_{};
     Colour sideToMove_ = Colour::White;
@@ -60,6 +64,7 @@ private:
     Square enPassantTarget_{-1, -1};
 
     int halfmoveClock_ = 0;
+    int fullmoveNumber_ = 1;
 
     // Zorbist hash - for 3 move repetition and transposition tables (engine)
     static uint64_t zorbistPiece[2][7][64]; // colour, piece, square
