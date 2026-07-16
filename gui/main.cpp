@@ -21,7 +21,7 @@ int main() {
     Colour pendingColour = Colour::White;
 
     // TESTING - debug (arbitrary test position)
-    board.setFromFen("r3k2r/8/8/8/8/8/8/R3K2R w KQkq - 0 1");
+    board.setFromFen("rnbqkb1r/pp1ppppp/5n2/2pP4/8/8/PPP1PPPP/RNBQKBNR w KQkq c6 0 3");
 
     while (window.isOpen()) {
         sf::Event event;

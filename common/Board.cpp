@@ -566,7 +566,7 @@ std::string Board::toFen() const {
     fen << ' ';
     if (enPassantTarget_.onBoard()) {
         fen << static_cast<char>('a' + enPassantTarget_.col)
-            << static_cast<char>('0' + enPassantTarget_.row);
+            << static_cast<char>('0' + (8 - enPassantTarget_.row));
     } else {
         fen << '-';
     }
@@ -616,6 +616,44 @@ bool Board::setFromFen(const std::string &fen) {
         }
     }
     if (row != 7 || col != 8) return false;
+
+    // Side to move
+    if (side == "w") sideToMove_ = Colour::White;
+    else if (side == "b") sideToMove_ = Colour::Black;
+    else return false;
+
+    // Castling rights
+    if (castlingRights != "-") {
+        for (char ch : castlingRights) {
+            switch (ch) {
+                case 'K': whiteKingside_ = true; break;
+                case 'Q': whiteQueenside_ = true; break;
+                case 'k': blackKingside_ = true; break;
+                case 'q': blackQueenside_ = true; break;
+                default: return false;
+            }
+        }
+    }
+
+    // EnPassant target
+    if (enPassant != "-") {
+        if (enPassant.size() != 2) return false;
+        int epCol = enPassant[0] - 'a';
+        int epRow = 8 - (enPassant[1] - '0');
+        if (epCol < 0 || epCol > 7 || epRow < 0 || epRow > 7) return false;
+        enPassantTarget_ = { epRow, epCol };
+    }
+
+    // Counters
+    halfmoveClock_ = halfmove;
+    fullmoveNumber_ = fullmove;
+
+    lastFrom_ = {-1, -1};
+    lastTo_ = {-1, -1};
+
+    positionHistory_.clear();
+    rehash();
+    positionHistory_.push_back(currentHash_);
 
     return true;
 }
