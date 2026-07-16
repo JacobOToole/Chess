@@ -56,6 +56,8 @@ public:
     std::string toFen() const;
     bool setFromFen(const std::string& fen);
 
+    int fullMoveNumber() const { return fullmoveNumber_; }
+
 private:
     std::array<Piece, 64> squares_{};
     Colour sideToMove_ = Colour::White;
