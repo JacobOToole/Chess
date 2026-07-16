@@ -519,7 +519,62 @@ bool Board::isInsufficientMaterial() const {
 }
 
 std::string Board::toFen() const {
-    return "";
+    std::ostringstream fen;
+
+    // Write pieces
+    for (int row = 0; row < 8; row++) {
+        int emptyRun = 0;
+        for (int col = 0; col < 8; col++) {
+            Piece p = at({row, col});
+            if (p.empty()) {
+                emptyRun++;
+            } else {
+                if (emptyRun > 0) {
+                    fen << emptyRun;
+                    emptyRun = 0;
+                }
+                char pieceLetter;
+                switch (p.type) {
+                    case PieceType::Pawn: pieceLetter = 'p'; break;
+                    case PieceType::Knight: pieceLetter = 'n'; break;
+                    case PieceType::Bishop: pieceLetter = 'b'; break;
+                    case PieceType::Rook: pieceLetter = 'r'; break;
+                    case PieceType::Queen: pieceLetter = 'q'; break;
+                    case PieceType::King: pieceLetter = 'k'; break;
+                    default: pieceLetter = '?'; break;
+                }
+                if (p.colour == Colour::White) { pieceLetter = std::toupper(pieceLetter); }
+                fen << pieceLetter;
+            }
+        }
+        if (emptyRun > 0) fen << emptyRun;
+        if (row < 7) fen << '/';
+    }
+    // Write side to move
+    fen << ' ' << (sideToMove_ == Colour::White ? 'w' : 'b');
+
+    // Write castling rights
+    fen << ' ';
+    std::string castlingRights;
+    if (whiteKingside_) castlingRights += 'K';
+    if (whiteQueenside_) castlingRights += 'Q';
+    if (blackKingside_) castlingRights += 'k';
+    if (blackQueenside_) castlingRights += 'q';
+    fen << (castlingRights.empty() ? "-" : castlingRights);
+
+    // Write enPassant target
+    fen << ' ';
+    if (enPassantTarget_.onBoard()) {
+        fen << static_cast<char>('a' + enPassantTarget_.col)
+            << static_cast<char>('0' + enPassantTarget_.row);
+    } else {
+        fen << '-';
+    }
+
+    // Write halfmove clock & fullmove clock
+    fen << ' ' << halfmoveClock_ << ' ' << fullmoveNumber_;
+
+    return fen.str();
 }
 
 bool Board::setFromFen(const std::string &fen) {

@@ -19,6 +19,9 @@ int main() {
     Square pendingTo  {-1, -1};
     Colour pendingColour = Colour::White;
 
+    // TESTING - debug
+    std::string fen = board.toFen();
+
     while (window.isOpen()) {
         sf::Event event;
         while (window.pollEvent(event)) {
