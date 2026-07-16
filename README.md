@@ -14,6 +14,9 @@ A rudimentary chess application with a rules-complete GUI and a planned UCI-comp
 - Check detection that uses a simulate-and-verify legality filter, which handles pinned pieces, discovered checks, and moves into check
 - Complete draw detection, with zorbist hasing used to detect three-fold repetition
 
+**Functionality** 
+- FEN import/export
+
 **Interface** 
 - Click-to-move with legal move highlighting
 - Last move square highlight
@@ -22,6 +25,5 @@ A rudimentary chess application with a rules-complete GUI and a planned UCI-comp
 - 'Game over' screen (Checkmate, stalemate, three types of draws)
 
 **Planned**
-- FEN import and export
 - UCI engine integration
 - **Custom engine** with minimax search and alpha-beta pruning
