@@ -1,12 +1,21 @@
 #include <SFML/Graphics.hpp>
+#include <iostream>
+
 #include "Renderer.h"
 #include "../common/Board.h"
 #include "../common/Piece.h"
-#include <iostream>
 #include "../common/uci.h"
+#include "EngineProcess.h"
 
 
 int main() {
+
+    try {
+        EngineProcess engine("assets/engines/stockfish-windows-x86-64-avx2.exe");
+
+
+
+
     Board::initZorbist();
     sf::RenderWindow window(sf::VideoMode(640, 640), "Chess");
 
@@ -118,4 +127,10 @@ int main() {
         window.display();
     }
     return 0;
+
+    } catch (const std::exception& e) {
+        std::cerr << e.what() << "\n";
+        return 1;
+    }
+
 }
