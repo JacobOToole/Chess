@@ -49,17 +49,26 @@ EngineProcess::EngineProcess(const std::string& enginePath) {
     CloseHandle(pi.hThread);
 
     processHandle_ = pi.hProcess;
+
+    running_ = true;
+    readerThread_ = std::thread(&EngineProcess::readerLoop, this);
+
     std::cout << "Engine launched: " << enginePath << "\n";
 }
 
 EngineProcess::~EngineProcess() {
+    running_ = false;
+    if (readerThread_.joinable()) {
+        // Closing the pipe unblocks the ReadFile call in the reader thread.
+        if (readStdout_) { CloseHandle(readStdout_); readStdout_ = nullptr; }
+        readerThread_.join();
+    }
     if (processHandle_) {
         TerminateProcess(processHandle_, 0);
         WaitForSingleObject(processHandle_, 1000);
         CloseHandle(processHandle_);
     }
     if (writeStdin_)  CloseHandle(writeStdin_);
-    if (readStdout_)  CloseHandle(readStdout_);
     std::cout << "Engine terminated\n";
 }
 
@@ -71,4 +80,30 @@ void EngineProcess::sendCommand(const std::string& command) {
                    &written, nullptr)) {
         std::cerr << "Failed to send command: " << command << "\n";
     }
+}
+
+void EngineProcess::readerLoop() {
+    std::string buffer;
+    char ch;
+    DWORD bytesRead = 0;
+
+    while (running_) {
+        BOOL success = ReadFile(readStdout_, &ch, 1, &bytesRead, nullptr);
+        if (!success || bytesRead == 0) break;   // pipe closed or error
+
+        if (ch == '\n') {
+            std::lock_guard<std::mutex> lock(lineMutex_);
+            pendingLines_.push_back(buffer);
+            buffer.clear();
+        } else if (ch != '\r') {  // ignore carriage returns
+            buffer += ch;
+        }
+    }
+}
+
+std::vector<std::string> EngineProcess::takeLines() {
+    std::lock_guard<std::mutex> lock(lineMutex_);
+    std::vector<std::string> lines = std::move(pendingLines_);
+    pendingLines_.clear();
+    return lines;
 }

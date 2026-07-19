@@ -17,7 +17,10 @@ int main() {
 
         engine.sendCommand("uci");
         std::this_thread::sleep_for(std::chrono::seconds(1));
-        engine.sendCommand("quit");
+
+        for (const auto& line : engine.takeLines()) {
+            std::cout << "<- " << line << "\n";
+        }
 
 
     Board::initZorbist();

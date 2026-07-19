@@ -2,6 +2,10 @@
 
 #include <string>
 #include <windows.h>
+#include <atomic>
+#include <mutex>
+#include <thread>
+#include <vector>
 
 class EngineProcess {
 public:
@@ -13,8 +17,17 @@ public:
 
     void sendCommand(const std::string& command);
 
+    std::vector<std::string> takeLines();
+
 private:
     HANDLE processHandle_ = nullptr;
     HANDLE writeStdin_ = nullptr;
     HANDLE readStdout_ = nullptr;
+
+    std::thread readerThread_;
+    std::mutex lineMutex_;
+    std::vector<std::string> pendingLines_;
+    std::atomic<bool> running_{false};
+
+    void readerLoop();
 };
