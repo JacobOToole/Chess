@@ -11,6 +11,8 @@ public:
     EngineProcess(const EngineProcess&) = delete;
     EngineProcess& operator=(const EngineProcess&) = delete;
 
+    void sendCommand(const std::string& command);
+
 private:
     HANDLE processHandle_ = nullptr;
     HANDLE writeStdin_ = nullptr;

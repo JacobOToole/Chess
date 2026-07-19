@@ -1,5 +1,7 @@
 #include <SFML/Graphics.hpp>
 #include <iostream>
+#include <thread>
+#include <chrono>
 
 #include "Renderer.h"
 #include "../common/Board.h"
@@ -13,7 +15,9 @@ int main() {
     try {
         EngineProcess engine("assets/engines/stockfish-windows-x86-64-avx2.exe");
 
-
+        engine.sendCommand("uci");
+        std::this_thread::sleep_for(std::chrono::seconds(1));
+        engine.sendCommand("quit");
 
 
     Board::initZorbist();

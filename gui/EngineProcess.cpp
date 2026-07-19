@@ -62,3 +62,13 @@ EngineProcess::~EngineProcess() {
     if (readStdout_)  CloseHandle(readStdout_);
     std::cout << "Engine terminated\n";
 }
+
+void EngineProcess::sendCommand(const std::string& command) {
+    std::string line = command + "\n";
+    DWORD written = 0;
+    if (!WriteFile(writeStdin_, line.data(),
+                   static_cast<DWORD>(line.size()),
+                   &written, nullptr)) {
+        std::cerr << "Failed to send command: " << command << "\n";
+    }
+}
