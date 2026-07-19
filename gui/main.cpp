@@ -3,6 +3,7 @@
 #include "../common/Board.h"
 #include "../common/Piece.h"
 #include <iostream>
+#include "../common/uci.h"
 
 
 int main() {
@@ -20,8 +21,6 @@ int main() {
     Square pendingTo  {-1, -1};
     Colour pendingColour = Colour::White;
 
-    // TESTING - debug (arbitrary test position)
-    board.setFromFen("rnbqkb1r/pp1ppppp/5n2/2pP4/8/8/PPP1PPPP/RNBQKBNR w KQkq c6 0 3");
 
     while (window.isOpen()) {
         sf::Event event;
