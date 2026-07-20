@@ -16,6 +16,7 @@ A rudimentary chess application with a rules-complete GUI and a planned UCI-comp
 
 **Functionality** 
 - FEN import/export
+- UCI engine integration - plays against local engine (stockfish)
 
 **Interface** 
 - Click-to-move with legal move highlighting
@@ -23,7 +24,8 @@ A rudimentary chess application with a rules-complete GUI and a planned UCI-comp
 - Check highlight
 - Coodrinate labels
 - 'Game over' screen (Checkmate, stalemate, three types of draws)
+- 'F' key to print FEN string to console
+- 'N' key starts a new game
 
 **Planned**
-- UCI engine integration
 - **Custom engine** with minimax search and alpha-beta pruning

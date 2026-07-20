@@ -1,4 +1,6 @@
-add_executable(chess_gui main.cpp Renderer.cpp)
+add_executable(chess_gui main.cpp Renderer.cpp
+        EngineProcess.h
+        EngineProcess.cpp)
 target_link_libraries(chess_gui PRIVATE
         chess_common
         sfml-graphics sfml-window sfml-system)
