@@ -2,7 +2,7 @@
 
 A rudimentary chess application with a rules-complete GUI and a planned UCI-compatible engine.
 
-**Status:** GUI is fully playable with all chess rules implemented. The engine is currently scaffolded as a separate binary but cannot play moves.
+**Status:** GUI is fully playable with all chess rules implemented. Playable against local engine with best move parsed from uci output and played on board. The custom engine is currently scaffolded as a separate binary but cannot play moves yet, however the engine process is complete and working.
 
 ## Features
 
