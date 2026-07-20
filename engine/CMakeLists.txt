@@ -1,2 +1,4 @@
-add_executable(chess_engine main.cpp)
-target_link_libraries(chess_engine PRIVATE chess_common)
+add_executable(kirushka main.cpp)
+set_target_properties(kirushka PROPERTIES RUNTIME_OUTPUT_DIRECTORY "${CMAKE_SOURCE_DIR}/assets/engines")
+
+target_link_libraries(kirushka PRIVATE chess_common)

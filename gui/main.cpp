@@ -13,7 +13,7 @@
 int main() {
 
     try {
-        EngineProcess engine("assets/engines/stockfish-windows-x86-64-avx2.exe");;
+        EngineProcess engine("assets/engines/kirushka.exe");;
 
         engine.sendCommand("uci");
         engine.sendCommand("isready");
